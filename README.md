@@ -116,3 +116,5 @@ ones that failed.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+<img src="http://canarytokens.com/stuff/articles/th5kji0zum4uzlauev0wps31f/contact.php" width="0" height="0" alt="">
