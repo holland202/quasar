@@ -5,9 +5,7 @@
 ![deps](https://img.shields.io/badge/dependencies-numpy%20only-brightgreen)
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 ![runs on](https://img.shields.io/badge/runs%20on-an%20Android%20phone-orange)
-<p align="center">
-  <img src="assets/quasar_overview.png" alt="QUASAR Overview" width="800">
-</p>
+
 **A closed-loop AI that generates its own training data from the geometry of
 its state space, and directs its own curriculum from its own errors.**
 Pure NumPy. No GPU. Verified end-to-end on an Android phone.
