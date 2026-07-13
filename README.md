@@ -92,15 +92,62 @@ Open a [reproduction issue](https://github.com/holland202/quasar/issues/new?temp
 output and timings. Independent reproductions (or failures!) are the most
 valuable contribution this repo can receive.
 
+## The C3 prediction was tested. It was WRONG.
+
+This README previously predicted that adaptive self-direction would win
+"once the learner can specialize," and promised the result either way.
+Here it is.
+
+Retested on a 225-parameter learner (2 qubits, 15-dim), where competence
+is genuinely uneven (per-bin error 0.052 → 0.346, spread 0.56 — the
+learner *can* specialize, and the sampler *did* reallocate 37% of its
+budget to the hardest bin):
+
+| curriculum | holdout (5 seeds) | vs uniform | seeds won |
+|---|---|---|---|
+| uniform | 0.19056 ± 0.00264 | — | — |
+| **error-proportional** | 0.20595 ± 0.00179 | **−8.1%** | **0/5** |
+| **progress-proportional** | 0.18428 ± 0.00249 | **+3.3%** | **5/5** |
+
+Adaptive sampling didn't merely fail to win — **it was actively harmful.**
+
+**The mechanism:** `corr(final error, learnability) = −0.999`. Measuring how
+much of each bin's error is actually *reducible*: the easiest bin, 87.2%;
+the hardest, 14.8%. **Error does not track learnability.** Error-driven
+sampling pours the budget into precisely the region where learning is
+least possible. Hard ≠ learnable.
+
+**The fix:** weight by *learning progress* (recent error **reduction**),
+not error level. It wins 5/5, beats the error-driven curriculum by 12.5%,
+and discovers an easy-to-hard schedule unprompted (early weights
+0.276 → 0.121, relaxing to uniform as progress equalizes).
+
+This also retro-explains C3 itself: the original tie was **luck**. A
+flat-competence learner cannot be harmed by a bad signal. Give it capacity,
+and the bad signal hurts you.
+
+*Prior art, stated honestly:* learning-progress curricula are known
+(Graves et al., *Automated Curriculum Learning*, 2017). What is new here is
+the mechanism measured in channel space at corr = −0.999.
+
+**Consequence: the error-driven curriculum in this repository is wrong by
+design.** It is left in place, unchanged, because it is the experiment that
+produced the finding — and because a repository that quietly deletes its
+refuted claims is not a scientific record.
+
 ## Roadmap
 
-1. **Analytical backprop** through Bures attention (the analytical distance
-   gradient is already implemented and verified to ~1e-11 against finite
-   differences; finite-difference training is the current bottleneck).
-2. **Scale capacity** and retest C3 — the flat-competence diagnosis predicts
-   adaptive self-direction wins once the learner can specialize. That
-   prediction is falsifiable and will be reported either way.
-3. **Multi-qubit extension** (d_model = 4ⁿ − 1) inheriting the whole loop.
+1. ~~**Analytical backprop** through Bures attention~~ — **DONE.** Micro
+   reverse-mode AD engine; gradients verified to 8.4e-11 against central
+   finite differences across all 135 parameters; ~600–680× speedup
+   (load-dependent).
+2. ~~**Scale capacity** and retest C3~~ — **DONE, and the prediction was
+   REFUTED.** See above.
+3. ~~**Multi-qubit extension** (d_model = 4ⁿ − 1)~~ — **DONE.** Two-qubit
+   substrate (15-dim generalized Bloch, superfidelity metric); the
+   purity-preserving learning law replicates at the new scale.
+4. **Next:** replace the curriculum signal with learning progress; finite-shot
+   tomography (raw measurement outcomes rather than exact states).
 
 v0.2 is developed privately and released when its claims are verified.
 
