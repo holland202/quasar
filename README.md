@@ -30,6 +30,10 @@ trajectory is a physically valid quantum evolution, so **no human dataset is
 needed**. Difficulty is measured natively as Bures path length. The learner's
 per-difficulty error sets what gets generated next. No hand-designed schedule.
 
+## Play with it in your browser
+
+**[holland202.github.io/quasar](https://holland202.github.io/quasar/)** — drag the sliders and watch the Bloch sphere deform into a quantum channel. Push past the CP cone and the physicality certificate fails in real time. Then hit *learn it from raw measurements* and watch the channel get reconstructed from simulated tomography, in your browser. No install. Every number computed live.
+
 ## Components
 
 | Module | What it is |
