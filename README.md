@@ -6,6 +6,15 @@
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 ![runs on](https://img.shields.io/badge/runs%20on-an%20Android%20phone-orange)
 
+![quantum-geometric AI](assets/3d_hero.png)
+
+Every surface above is the action of a channel actually learned from data, or actual simulated measurements — nothing is decorative. Regenerate them yourself: `python assets/viz3d.py`
+
+![a channel is a deformation of the sphere](assets/3d_channel.gif)
+
+*A layer that IS a physical process: the Bloch sphere deforms into the learned quantum channel (cyan), overlaid on the true channel (orange). Recovered from raw trajectories — never told.*
+
+
 **A closed-loop AI that generates its own training data from the geometry of
 its state space, and directs its own curriculum from its own errors.**
 Pure NumPy. No GPU. Verified end-to-end on an Android phone.
