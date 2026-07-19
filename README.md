@@ -178,3 +178,37 @@ ones that failed.
 MIT — see [LICENSE](LICENSE).
 
 
+
+## Update 2026-07-19 — the progress-curriculum fix does NOT transfer to this repo's scale
+
+Roadmap item 4 above promised to "replace the curriculum signal with learning
+progress." That was tested on **this public repository's** learner. It does not
+work here, and saying so is the point of this record.
+
+The 5/5 progress win reported in the C3 section above was measured on the
+**private lab's** 225-parameter, 2-qubit learner, where per-bin competence is
+genuinely uneven (error spread 0.56). On the public demo-scale toy, the picture
+inverts. Three registered experiments, `python note_curriculum_scale.py`:
+
+| curriculum (demo scale) | mean holdout | seeds beating uniform |
+|---|---|---|
+| uniform | 0.2129 | — |
+| error-driven | 0.2131 | 1/5 |
+| progress (probe n=4) | 0.2133 | 2/5 |
+| progress (probe n=16) | 0.2135 | 2/5 |
+| progress (probe n=64) | 0.2144 | 2/5 |
+
+The noise hypothesis — "progress lost because the signal was noisy" — was
+registered and **refuted**: sharpening the probe 16× made progress *worse*
+(−0.21% → −0.72%, monotonic). A cleaner signal steering toward a benefit that
+does not exist steers more confidently into nothing.
+
+**Corrected conclusion.** The self-training *loop* is real and self-directs
+(C2 ✅). Curriculum *benefit* is absent at demo scale (C3) — not because the
+signal is wrong, but because the toy has no curriculum-exploitable structure
+for any sampler to find. Curriculum choice matters only once the task is hard
+enough that *which* data you train on changes the outcome. That threshold is
+above this repo's demo scale.
+
+Both records stand: the private lab's 5/5 (where structure exists) and this
+repo's null (where it doesn't). The variable is scale, not signal.
