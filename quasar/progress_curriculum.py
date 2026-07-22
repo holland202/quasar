@@ -42,14 +42,12 @@ class ProgressCurriculumSampler:
         if len(self.memory) < self.gradient_window:
             return d  # fallback to raw difficulty when cold
         
-        # Look at recent memory near this difficulty level
         recent = list(self.memory)[-self.gradient_window:]
         diffs = [self._compute_difficulty(t) for t in recent]
         mean_diff = np.mean(diffs)
         std_diff = np.std(diffs) + 1e-6
         
-        # Score = how far from local mean / local std (z-score magnitude)
-        # This prioritizes trajectories that are breaking the recent pattern
+        # Prioritize trajectories breaking the recent pattern (high z-score magnitude)
         z = abs(d - mean_diff) / std_diff
         return z
 
@@ -63,12 +61,11 @@ class ProgressCurriculumSampler:
     def sample_batch(self, n, n_steps=10, **gen_kwargs):
         """
         Generate n trajectories with progress-driven filtering.
-        Uses rejection sampling: generate 2n candidates, keep the n with highest gradient scores.
+        Generate 2n candidates, keep the n with highest gradient scores.
         """
         candidates = [self.sample_trajectory(n_steps, **gen_kwargs) for _ in range(n * 2)]
         scores = [self._gradient_score(t) for t in candidates]
         
-        # Softmax selection
         scores = np.array(scores)
         scores = scores - np.max(scores)
         probs = np.exp(scores / self.temperature)
@@ -77,9 +74,9 @@ class ProgressCurriculumSampler:
         indices = self.rng.choice(len(candidates), size=n, replace=False, p=probs)
         selected = [candidates[i] for i in indices]
         
-        # Update memory with selected only (prune rejects)
+        # Prune rejects from memory
         for _ in range(n):
-            self.memory.pop()  # remove the extra candidates from memory
+            self.memory.pop()
         for s in selected:
             self.memory.append(s)
         
@@ -109,7 +106,7 @@ def demo_progress_vs_error():
         def __init__(self, seed=42):
             self.rng = np.random.default_rng(seed)
         def generate_trajectory(self, n_steps=10):
-            # Simulate a "learning landscape": difficulty clusters around 3 and 7
+            # Bimodal landscape: difficulty clusters around 3 and 7
             if self.rng.random() < 0.5:
                 d = self.rng.normal(3.0, 0.5)
             else:
@@ -118,7 +115,7 @@ def demo_progress_vs_error():
 
     base = DummyGenerator(seed=42)
 
-    # Naive: just accept everything
+    # Naive sampling
     naive = [base.generate_trajectory(10) for _ in range(100)]
     naive_diffs = [t['difficulty'] for t in naive]
 
@@ -136,7 +133,6 @@ def demo_progress_vs_error():
     print(f"  range=[{np.min(prog_diffs):.2f}, {np.max(prog_diffs):.2f}]")
     print(f"  memory distribution: {prog.get_difficulty_distribution()}")
 
-    # Progress curriculum should show higher std — it's actively seeking the boundaries
     if np.std(prog_diffs) > np.std(naive_diffs):
         print("\n[PASS] Progress curriculum increases diversity")
     else:
