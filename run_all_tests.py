@@ -1,19 +1,48 @@
-"""Run every verification suite. Exit nonzero on any failure."""
-import sys, subprocess
-suites = [
-    [sys.executable, "-m", "quasar.quantum_geometric_transformer"],
-    [sys.executable, "-m", "quasar.quantum_geometric_rl"],
-    [sys.executable, "-m", "quasar.quasar"],
-]
-for s in suites:
-    print("\n" + "="*66 + f"\nRUNNING: {' '.join(s[1:])}\n" + "="*66)
-    r = subprocess.run(s)
-    if r.returncode != 0:
-        sys.exit(f"FAILED: {s}")
-print("\nALL SUITES PASSED")
+#!/usr/bin/env python3
+"""
+QUASAR - Run all test suites
+Usage: python run_all_tests.py
+"""
 
-# Finite-shot tomography
-print("\n[4/4] Finite-shot tomography...")
-from quasar.finite_shot_tomography import run_all_tests as tom_tests
-tom_ok = tom_tests()
-all_ok = all_ok and tom_ok
+import subprocess
+import sys
+
+def run_suite(name, module):
+    print("")
+    print("=" * 66)
+    print("RUNNING: -m " + module)
+    print("=" * 66)
+    print("")
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", module],
+            capture_output=False,
+            text=True
+        )
+        return result.returncode == 0
+    except Exception as e:
+        print("ERROR running " + module + ": " + str(e))
+        return False
+
+if __name__ == "__main__":
+    suites = [
+        ("Quantum Geometric Transformer", "quasar.quantum_geometric_transformer"),
+        ("Quantum Geometric RL", "quasar.quantum_geometric_rl"),
+        ("QUASAR Closed Loop", "quasar.quasar"),
+        ("Finite-shot Tomography", "quasar.finite_shot_tomography"),
+    ]
+    
+    all_ok = True
+    
+    for name, module in suites:
+        ok = run_suite(name, module)
+        all_ok = all_ok and ok
+    
+    print("")
+    print("=" * 66)
+    if all_ok:
+        print("ALL SUITES PASSED")
+        sys.exit(0)
+    else:
+        print("SOME SUITES FAILED")
+        sys.exit(1)
