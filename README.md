@@ -41,6 +41,7 @@ per-difficulty error sets what gets generated next. No hand-designed schedule.
 | `quasar/quantum_geometric_transformer.py` | **QGT** — transformer with Bures-metric attention on Bloch vectors, replacing dot-product similarity with quantum state distinguishability. 7-suite self-test. |
 | `quasar/quantum_geometric_rl.py` | **QGRL** — QGT as a control policy, bracketed between a random floor and the analytical-optimal ceiling. |
 | `quasar/quasar.py` | **The closed loop** — generator + geometric difficulty + error-driven self-direction, with a uniform-sampling control at equal budget. |
+| `quasar/finite_shot_tomography.py` | Finite-shot state tomography — Born-rule measurement simulator, linear inversion / MLE reconstructor, trajectory generator. 7-suite self-test. |
 | `experiments/quasar_experiment2.py` | Uneven-competence experiment (honest negative result, below). |
 
 ## Results
@@ -147,6 +148,18 @@ the mechanism measured in channel space at corr = −0.999.
 design.** It is left in place, unchanged, because it is the experiment that
 produced the finding — and because a repository that quietly deletes its
 refuted claims is not a scientific record.
+
+
+### Finite-shot tomography
+
+| Metric | Value |
+|--------|-------|
+| Reconstruction fidelity (512 shots, 6 bases) | > 0.998 |
+| Bures error (512 shots) | ~0.035 |
+| Curriculum rank correlation | 0.962 |
+| Scaling | ~1/sqrt(shots) |
+
+The self-training loop operates on raw measurement outcomes — no exact states needed.
 
 ## Roadmap
 

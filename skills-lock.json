@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "abandoned-check": {
+      "source": "seal-community/research",
+      "sourceType": "github",
+      "skillPath": "skills/abandoned-check/SKILL.md",
+      "computedHash": "038bae205dc83efc85090b2d98fb8153ebb9948c6251aa6d67bc6613bf4b86c9"
+    }
+  }
+}

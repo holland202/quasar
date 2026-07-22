@@ -11,3 +11,9 @@ for s in suites:
     if r.returncode != 0:
         sys.exit(f"FAILED: {s}")
 print("\nALL SUITES PASSED")
+
+# Finite-shot tomography
+print("\n[4/4] Finite-shot tomography...")
+from quasar.finite_shot_tomography import run_all_tests as tom_tests
+tom_ok = tom_tests()
+all_ok = all_ok and tom_ok
