@@ -44,7 +44,8 @@ def rho_to_bloch15(rho):
 def bloch15_to_rho(r):
     """15-dim Bloch vector -> 4x4 density matrix."""
     r = np.asarray(r, dtype=float)
-    return (np.eye(4, dtype=complex) + sum(ri * Bi for ri, Bi in zip(r, _BASIS_OPS))) / 4.0
+    # rho = I/4 + sum_i r_i B_i  (B_i orthonormal, r_i = Tr(rho B_i))
+    return np.eye(4, dtype=complex) / 4.0 + sum(ri * Bi for ri, Bi in zip(r, _BASIS_OPS))
 
 
 def is_physical(rho, tol=1e-9):
@@ -107,16 +108,40 @@ def linear_inversion_2q(expectations):
     return rho
 
 
-def mle_reconstruction_2q(expectations, max_iter=100, tol=1e-9):
-    """Iterative MLE for 2-qubit state (Hradil-style)."""
+def mle_reconstruction_2q(expectations, shots, max_iter=200, tol=1e-10):
+    """Iterative MLE for 2-qubit state (R rho R algorithm)."""
     rho = project_physical(linear_inversion_2q(expectations))
+    I4 = np.eye(4, dtype=complex)
+    
     for _ in range(max_iter):
-        R = sum((e / max(np.trace(rho @ P).real, 1e-12)) * P for e, P in zip(expectations, _TWO_QUBIT_PAULI))
-        R = R / 4.0
-        rho_new = project_physical(R @ rho @ R)
+        R = np.zeros((4, 4), dtype=complex)
+        for e, P in zip(expectations, _TWO_QUBIT_PAULI):
+            n_plus = shots * (1 + e) / 2
+            n_minus = shots * (1 - e) / 2
+            f = np.trace(rho @ P).real
+            p_plus = (1 + f) / 2
+            p_minus = (1 - f) / 2
+            
+            Pi_plus = (I4 + P) / 2
+            Pi_minus = (I4 - P) / 2
+            
+            if p_plus > 1e-12:
+                R += (n_plus / p_plus) * Pi_plus
+            if p_minus > 1e-12:
+                R += (n_minus / p_minus) * Pi_minus
+        
+        rho_new = R @ rho @ R
+        t = np.trace(rho_new).real
+        if t > 1e-12:
+            rho_new = rho_new / t
+        else:
+            break
+        rho_new = project_physical(rho_new)
+        
         if np.linalg.norm(rho_new - rho, 'fro') < tol:
             break
         rho = rho_new
+    
     return rho
 
 
@@ -140,7 +165,7 @@ class Tomographic2QGenerator:
             if self.method == 'linear':
                 r = linear_inversion_2q(exps)
             else:
-                r = mle_reconstruction_2q(exps)
+                r = mle_reconstruction_2q(exps, self.shots)
             r = project_physical(r)
             recon_rhos.append(r)
             errors.append(bures_distance2q(rho, r))
@@ -189,6 +214,7 @@ def self_test():
         passed += 1
     else:
         print("[FAIL] Bloch15 roundtrip")
+        print(f"  max diff: {np.max(np.abs(rho - rho2))}")
 
     total += 1
     if is_physical(bloch15_to_rho(np.zeros(15))):
@@ -218,7 +244,7 @@ def self_test():
 
     total += 1
     exps = measure_pauli_expectations(rho, 4096, rng)
-    rho_rec = mle_reconstruction_2q(exps)
+    rho_rec = mle_reconstruction_2q(exps, 4096)
     rho_rec = project_physical(rho_rec)
     err = bures_distance2q(rho, rho_rec)
     if err < 0.15:
@@ -232,7 +258,7 @@ def self_test():
     shots_list = [256, 512, 1024, 2048, 4096]
     for s in shots_list:
         exps = measure_pauli_expectations(rho, s, rng)
-        r = mle_reconstruction_2q(exps)
+        r = mle_reconstruction_2q(exps, s)
         errs.append(bures_distance2q(rho, project_physical(r)))
     slope = np.polyfit(np.log(shots_list), np.log(errs), 1)[0]
     if slope < -0.4:
@@ -240,6 +266,7 @@ def self_test():
         passed += 1
     else:
         print(f"[FAIL] Scaling slope = {slope:.3f}")
+        print(f"  Errors: {errs}")
 
     print(f"\nRESULT: {passed}/{total} suites passed")
     print("=" * 60)
