@@ -12,7 +12,7 @@ Self-contained; no modifications to quasar.py needed.
 import numpy as np
 from itertools import product
 
-# --- SU(4) generalized Gell-Mann matrices ---
+# --- SU(4) generalized Gell-Mann basis ---
 def _pauli():
     I = np.eye(2, dtype=complex)
     X = np.array([[0, 1], [1, 0]], dtype=complex)
@@ -32,8 +32,7 @@ for a, b in product(['I', 'X', 'Y', 'Z'], repeat=2):
     _TWO_QUBIT_PAULI.append(op)
     _TWO_QUBIT_LABELS.append(a + b)
 
-# Normalization: make them orthonormal under Hilbert-Schmidt inner product
-# Tr(P_i P_j) = 4 delta_ij for Pauli strings, so divide by 2
+# Normalization: Tr(P_i P_j) = 4 delta_ij, so divide by 2 for HS norm 1
 _BASIS_OPS = [P / 2.0 for P in _TWO_QUBIT_PAULI]
 
 
@@ -60,7 +59,7 @@ def is_physical(rho, tol=1e-9):
 
 def project_physical(rho):
     """Project onto physical states via eigenvalue clipping."""
-    rho = (rho + rho.conj().T) / 2.0  # Hermitianize
+    rho = (rho + rho.conj().T) / 2.0
     w, v = np.linalg.eigh(rho)
     w = np.maximum(w, 0)
     w = w / np.sum(w)
@@ -92,8 +91,7 @@ def measure_pauli_expectations(rho, shots, rng=None):
         rng = np.random.default_rng()
     expectations = []
     for P in _TWO_QUBIT_PAULI:
-        ev = np.trace(rho @ P).real  # expectation of Pauli string
-        # Eigenvalues of each Pauli string are +/-1
+        ev = np.trace(rho @ P).real
         p = (1 + ev) / 2
         counts = rng.binomial(shots, p)
         est = 2 * (counts / shots) - 1
@@ -103,14 +101,6 @@ def measure_pauli_expectations(rho, shots, rng=None):
 
 def linear_inversion_2q(expectations):
     """Reconstruct rho from 15 Pauli expectation values."""
-    # expectations[i] = Tr(rho * P_i) where P_i are unnormalized Pauli strings
-    # rho = (I + sum_i expectations[i] * P_i / 4) / 4 ... wait
-    # Actually: rho = (I/4) + (1/4) * sum_i <P_i> * (P_i/2) * 2 ... let's derive carefully.
-    # P_i = kron(PA, PB). Tr(P_i P_j) = 4 delta_ij.
-    # rho = (1/4) * I + (1/4) * sum_i <P_i> * (P_i / 2) ... no.
-    # Write rho = (1/4) I + sum_k r_k B_k where B_k = P_k / 2, Tr(B_i B_j) = delta_ij.
-    # Then r_k = Tr(rho B_k) = Tr(rho P_k)/2 = expectations[k]/2.
-    # So rho = I/4 + sum_k (expectations[k]/2) * (P_k/2) = I/4 + sum_k expectations[k] * P_k / 4.
     rho = np.eye(4, dtype=complex) / 4.0
     for e, P in zip(expectations, _TWO_QUBIT_PAULI):
         rho += e * P / 4.0
@@ -141,7 +131,7 @@ class Tomographic2QGenerator:
 
     def generate_trajectory(self, n_steps=10):
         exact = self.base.generate_trajectory(n_steps)
-        exact_rhos = exact['states']  # list of 4x4 arrays
+        exact_rhos = exact['states']
         recon_rhos = []
         errors = []
         fids = []
@@ -173,14 +163,11 @@ class Tomographic2QGenerator:
         return [self.generate_trajectory(n_steps) for _ in range(n)]
 
 
-# --- Self-test ---
 def _random_physical_2q(rng):
     """Generate random physical 2-qubit state."""
-    # Random pure state via Haar
     psi = rng.standard_normal(4) + 1j * rng.standard_normal(4)
     psi = psi / np.linalg.norm(psi)
     rho = np.outer(psi, psi.conj())
-    # Add depolarizing
     p = rng.random() * 0.3
     return (1 - p) * rho + p * np.eye(4) / 4
 
@@ -193,7 +180,6 @@ def self_test():
     passed = 0
     total = 0
 
-    # Test 1: Bloch roundtrip
     total += 1
     rho = _random_physical_2q(rng)
     r = rho_to_bloch15(rho)
@@ -204,7 +190,6 @@ def self_test():
     else:
         print("[FAIL] Bloch15 roundtrip")
 
-    # Test 2: Physicality
     total += 1
     if is_physical(bloch15_to_rho(np.zeros(15))):
         print("[PASS] Maximally mixed is physical")
@@ -212,7 +197,6 @@ def self_test():
     else:
         print("[FAIL] Maximally mixed physicality")
 
-    # Test 3: Superfidelity bounds
     total += 1
     rho = _random_physical_2q(rng)
     sigma = _random_physical_2q(rng)
@@ -223,7 +207,6 @@ def self_test():
     else:
         print(f"[FAIL] Superfidelity = {f}")
 
-    # Test 4: Linear inversion on exact expectations
     total += 1
     exps = [np.trace(rho @ P).real for P in _TWO_QUBIT_PAULI]
     rho_lin = linear_inversion_2q(exps)
@@ -233,9 +216,7 @@ def self_test():
     else:
         print("[FAIL] Linear inversion")
 
-    # Test 5: Finite-shot reconstruction quality
     total += 1
-    gen = Tomographic2QGenerator(None, shots=4096, method='mle', seed=42)
     exps = measure_pauli_expectations(rho, 4096, rng)
     rho_rec = mle_reconstruction_2q(exps)
     rho_rec = project_physical(rho_rec)
@@ -246,7 +227,6 @@ def self_test():
     else:
         print(f"[FAIL] MLE reconstruction error = {err:.4f}")
 
-    # Test 6: Scaling
     total += 1
     errs = []
     shots_list = [256, 512, 1024, 2048, 4096]
