@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SOVEREIGN GALAXY</title>
+<style>
+  body { margin:0; background:#000; overflow:hidden; font-family:sans-serif; }
+  #hud { position:fixed; top:20px; left:20px; color:#a0e0ff; background:rgba(5,10,30,0.95); padding:16px 28px; border-radius:14px; z-index:100; border:1px solid #5577aa; }
+  #info { position:fixed; bottom:30px; left:30px; background:rgba(10,15,40,0.95); padding:18px; border-radius:16px; max-width:380px; display:none; z-index:200; border:1px solid #77aaff; }
+</style>
+</head>
+<body>
+<div id="hud">SOVEREIGN GALAXY — Tap nodes</div>
+<div id="info"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const items = [
+  {name: "skn-v1-", url: "https://github.com/holland202/skn-v1-", color: 0x22ff99, desc: "Sovereign Evolution Core"},
+  {name: "slc-v12-", url: "https://github.com/holland202/slc-v12-", color: 0xffaa33, desc: "Sovereign Logic Core"},
+  {name: "kepano-obsidian", url: "https://github.com/holland202/kepano-obsidian", color: 0x88aaff, desc: "Obsidian Vault"},
+  {name: "Principia-Artificialis", url: "https://github.com/holland202/Principia-Artificialis", color: 0xff66cc, desc: "Principia Artificialis"},
+  {name: "sentinel-batadal-validation", url: "https://github.com/holland202/sentinel-batadal-validation", color: 0x44ffdd, desc: "Sentinel Validation"},
+  {name: "quasar", url: "https://github.com/holland202/quasar", color: 0xffee66, desc: "Quasar"},
+  {name: "vault-tools", url: "https://github.com/holland202/vault-tools", color: 0x77ffaa, desc: "Galaxy Engine"},
+];
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0a001f, 0.005);
+
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 5, 2500);
+camera.position.set(0, 120, 450);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+const nodeMeshes = [];
+
+items.forEach(item => {
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(14, 16, 16),
+    new THREE.MeshBasicMaterial({color: item.color})
+  );
+  mesh.userData = item;
+  mesh.position.set((Math.random()-0.5)*300, (Math.random()-0.5)*180, (Math.random()-0.5)*250);
+  scene.add(mesh);
+  nodeMeshes.push(mesh);
+});
+
+const lineMat = new THREE.LineBasicMaterial({color:0x7799ff, transparent:true, opacity:0.22});
+for (let i = 0; i < 1200; i++) {
+  const a = nodeMeshes[Math.floor(Math.random()*nodeMeshes.length)].position;
+  const b = nodeMeshes[Math.floor(Math.random()*nodeMeshes.length)].position;
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]), lineMat));
+}
+
+scene.add(new THREE.Points(
+  new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array(45000*3).map(()=>(Math.random()-0.5)*2200),3)),
+  new THREE.PointsMaterial({color:0xccddee, size:1.1})
+));
+
+const infoPanel = document.getElementById('info');
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+window.addEventListener('click', (e) => {
+  mouse.x = (e.clientX / innerWidth) * 2 - 1;
+  mouse.y = -(e.clientY / innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const hit = raycaster.intersectObjects(nodeMeshes)[0];
+  if (hit) {
+    const data = hit.object.userData;
+    infoPanel.innerHTML = `<strong>\( {data.name}</strong><br> \){data.desc}<br><a href="${data.url}" target="_blank" style="color:#88ddff">→ Open Repo</a>`;
+    infoPanel.style.display = 'block';
+    window.open(data.url, '_blank');
+  } else {
+    infoPanel.style.display = 'none';
+  }
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  nodeMeshes.forEach(n => n.rotation.y += 0.003);
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
