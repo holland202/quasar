@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QUASAR — Architecture Map</title>
+<style>
+  body { background:#0a0e14; color:#cde; font-family:-apple-system,Segoe UI,Roboto,sans-serif; margin:0; padding:20px; line-height:1.5; }
+  h1 { color:#7fffd4; font-size:22px; margin-bottom:4px; }
+  .sub { color:#89a; font-size:13px; margin-bottom:24px; }
+  h2 { color:#9fe; font-size:16px; border-bottom:1px solid #234; padding-bottom:6px; margin-top:32px; }
+  .module { background:#111823; border:1px solid #1c2a3a; border-radius:8px; padding:14px 16px; margin:10px 0; }
+  .module .path { color:#ffd166; font-family:monospace; font-size:13px; }
+  .module .desc { margin-top:6px; font-size:14px; color:#bcd; }
+  .tag { display:inline-block; font-size:11px; padding:2px 8px; border-radius:10px; margin-left:8px; }
+  .tag.verified { background:#123; color:#7fffd4; border:1px solid #2a5; }
+  .tag.refuted { background:#310; color:#f88; border:1px solid #a44; }
+  .tag.info { background:#223; color:#9ac; border:1px solid #446; }
+  table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13px; }
+  th, td { border:1px solid #234; padding:6px 10px; text-align:left; }
+  th { background:#141b26; color:#9fe; }
+  .note { color:#89a; font-size:12px; margin-top:24px; border-top:1px solid #234; padding-top:12px; }
+  a { color:#6cf; }
+</style>
+</head>
+<body>
+
+<h1>QUASAR — Architecture Map</h1>
+<div class="sub">Generated from README.md + top-level file listing, holland202/quasar. Not a full code audit — see note at bottom.</div>
+
+<h2>Core loop</h2>
+<div class="module">
+  <div class="path">quasar/quasar.py</div>
+  <div class="desc">The closed loop: generator + geometric difficulty (Bures path length) + error-driven self-direction, benchmarked against a uniform-sampling control at equal budget.</div>
+  <span class="tag verified">C1 verified — held-out transfer</span>
+  <span class="tag verified">C2 verified — self-directs</span>
+  <span class="tag refuted">C3 refuted, kept — no curriculum benefit at demo scale</span>
+</div>
+
+<div class="module">
+  <div class="path">quasar/quantum_geometric_transformer.py</div>
+  <div class="desc">QGT — transformer using Bures-metric attention on Bloch vectors instead of dot-product similarity. 7-suite self-test. Analytical backprop verified to 8.4e-11 vs. central finite differences across all 135 parameters.</div>
+  <span class="tag verified">verified</span>
+</div>
+
+<div class="module">
+  <div class="path">quasar/quantum_geometric_rl.py</div>
+  <div class="desc">QGRL — QGT used as a control policy, bracketed between a random floor and analytical-optimal ceiling.</div>
+  <span class="tag verified">verified — mean final Bures distance 0.033 vs random 0.74, ceiling 0.00</span>
+</div>
+
+<h2>Experiments</h2>
+<div class="module">
+  <div class="path">experiments/quasar_experiment2.py</div>
+  <div class="desc">Uneven-competence experiment. Retested the curriculum hypothesis on a larger (225-param, 2-qubit) learner where competence is genuinely uneven.</div>
+  <span class="tag info">private-lab result: progress-curriculum wins 5/5</span>
+</div>
+
+<div class="module">
+  <div class="path">note_curriculum_scale.py</div>
+  <div class="desc">Registered, dated follow-up (2026-07-19): tests whether the progress-curriculum fix transfers to this repo's own demo-scale learner.</div>
+  <span class="tag refuted">refuted at demo scale — progress curriculum loses 3/5, gets worse as signal sharpens (noise hypothesis explicitly ruled out)</span>
+</div>
+
+<div class="module">
+  <div class="path">quasar_v02_experiment.py</div>
+  <div class="desc">v0.2 experiment track. Per README, v0.2 itself is developed privately and released only once claims are independently verified.</div>
+  <span class="tag info">status not detailed in README — inspect directly before relying on it</span>
+</div>
+
+<h2>Verification / entry points</h2>
+<table>
+<tr><th>File</th><th>Role</th></tr>
+<tr><td>run_all_tests.py</td><td>Runs every suite; the number in the README's badge and the "reproduce it?" issue template both point here.</td></tr>
+<tr><td>run_f18a.py</td><td>Not documented in README body — name suggests a specific finding/figure run. Inspect before use.</td></tr>
+<tr><td>run_seeds.py</td><td>Not documented in README body — likely the multi-seed harness behind the 5-seed tables above. Inspect before use.</td></tr>
+</table>
+
+<h2>Supporting</h2>
+<table>
+<tr><th>Path</th><th>Contents</th></tr>
+<tr><td>assets/</td><td>Includes <code>viz3d.py</code> (regenerates the Bloch-sphere renders — README states these are real learned channels, not decorative).</td></tr>
+<tr><td>docs/</td><td>Not itemized in README — inspect directly.</td></tr>
+<tr><td>TOMOGRAPHY_INTEGRATION.md</td><td>Referenced by roadmap item 4 (finite-shot tomography from raw measurement outcomes). Read before extending the tomography path.</td></tr>
+<tr><td>requirements.txt</td><td>Per README: NumPy only, no GPU.</td></tr>
+</table>
+
+<h2>The one open, honest finding</h2>
+<p>The error-driven curriculum is confirmed <b>wrong by design</b> and left in the repo unchanged, on purpose — it's the experiment that produced the finding. The fix (progress-proportional weighting) is verified to work at a larger private-lab scale and verified to <b>not</b> work at this repo's public demo scale. Both results stand; per the README, the variable is scale, not signal. The documented next step is retesting at larger scale, not swapping the formula again.</p>
+
+<div class="note">
+Generated from README.md and a top-level <code>ls</code> of the repo on 2026-07-22 — not a line-by-line code read. Module descriptions marked "not documented in README" should be verified against actual source before being relied on for architecture decisions.
+</div>
+
+</body>
+</html>
