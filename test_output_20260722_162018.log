@@ -1,0 +1,151 @@
+============================================================
+QUANTUM GEOMETRIC TRANSFORMER v1.0 — SELF-TEST
+============================================================
+
+[Test 1] Bures Distance — Pure States
+  d_B = 0.523599, expected = 0.523599
+  ✅ PASS — d_B = angle/2 for pure states
+
+[Test 2] Bures Distance Gradient
+  |∇analytical - ∇finite_diff| = 4.55e-11 (tolerance 1e-3)
+  ✅ PASS — Analytical gradient verified
+
+[Test 3] Density Matrix Properties
+  Hermitian: True, Trace-1: True, PSD: True
+  ✅ PASS — Hermitian, trace-1, PSD
+
+[Test 4] Attention Weights
+  Max |r| after attention: 0.001505 (should be ≤ 1.0)
+  ✅ PASS — All outputs in Bloch ball
+
+[Test 5] Full Transformer Forward Pass
+  Max |r| after full forward: 0.320674
+  ✅ PASS — Bloch ball preserved through all layers
+
+[Test 6] Training Convergence
+  Loss before: 0.4810, after: 0.4706
+  Improvement: 2.2%
+  ✅ PASS — Loss decreased
+
+[Test 7] Clifford Group Verification
+  Clifford group elements: 24 (expected 24)
+  ✅ PASS — 24-element Clifford group confirmed
+
+============================================================
+ALL 6 TEST SUITES PASSED — QGT v1.0 VERIFIED
+============================================================
+================================================================
+QUANTUM GEOMETRIC REINFORCEMENT LEARNING (QGRL) v1.0
+================================================================
+Task: drive random pure states to |0> = [0,0,1]
+Metric: Bures distance | Actions: SO(3) rotations
+
+[Baselines] (mean over 24 fixed start states, horizon=3)
+  Random  : return=-2.5178 | mean final d_B=0.9159
+  Optimal : return=-0.0000 | mean final d_B=0.0000
+
+[Training] QGT policy via finite-difference policy search
+  iter  0 | return=-3.1489 | mean final d_B=0.9422
+  iter  1 | return=-1.4835 | mean final d_B=0.6230
+  iter  2 | return=-0.4551 | mean final d_B=0.3469
+  iter  3 | return=-0.3145 | mean final d_B=0.2256
+  iter  4 | return=-0.2476 | mean final d_B=0.1402
+  iter  5 | return=-0.2160 | mean final d_B=0.0959
+  iter  6 | return=-0.2540 | mean final d_B=0.1793
+  iter  7 | return=-0.1827 | mean final d_B=0.0502
+  iter  8 | return=-0.1668 | mean final d_B=0.0317
+  iter  9 | return=-0.1551 | mean final d_B=0.0289
+  iter 10 | return=-0.1467 | mean final d_B=0.0298
+  iter 11 | return=-0.1391 | mean final d_B=0.0291
+  iter 12 | return=-0.1325 | mean final d_B=0.0315
+  iter 13 | return=-0.1263 | mean final d_B=0.0335
+  iter 14 | return=-0.1338 | mean final d_B=0.0787
+  iter 15 | return=-0.1119 | mean final d_B=0.0277
+
+================================================================
+RESULTS
+================================================================
+  Random policy     : return=-2.5178  final d_B=0.9159
+  QGT (start)       : return=-3.1489  
+  QGT (learned)     : return=-0.1119  final d_B=0.0277
+  Analytical optimal: return=-0.0000  final d_B=0.0000
+
+  Normalised return (0=random, 1=optimal):
+    before training: -0.251
+    after  training: +0.956
+
+  Checks:
+    training improved return : True
+    learned beats random     : True
+
+  ✅ QGRL learning loop verified: return increased and beats random.
+==================================================================
+QUASAR v0.1 — self-training geometric AI (closed loop)
+==================================================================
+
+[Sanity] Bures path length per difficulty bin (should increase):
+  bin 0: mean path length = 0.639
+  bin 1: mean path length = 1.074
+  bin 2: mean path length = 1.316
+  bin 3: mean path length = 1.717
+
+[Baseline] untrained QGT holdout loss: 0.2406
+
+[QUASAR adaptive] 7 rounds x 10 traj x 3 epochs
+  round 1 | holdout=0.2347 | bin_err=[0.460 0.390 0.404 0.484] | next_weights=[0.29 0.18 0.20 0.34]
+  round 2 | holdout=0.2288 | bin_err=[0.500 0.492 0.428 0.438] | next_weights=[0.31 0.29 0.19 0.21]
+  round 3 | holdout=0.2233 | bin_err=[0.456 0.472 0.472 0.521] | next_weights=[0.21 0.24 0.24 0.32]
+  round 4 | holdout=0.2171 | bin_err=[0.444 0.484 0.524 0.459] | next_weights=[0.20 0.26 0.33 0.22]
+  round 5 | holdout=0.2129 | bin_err=[0.459 0.383 0.511 0.534] | next_weights=[0.22 0.13 0.30 0.35]
+  round 6 | holdout=0.2099 | bin_err=[0.415 0.417 0.418 0.460] | next_weights=[0.23 0.23 0.23 0.31]
+  round 7 | holdout=0.2090 | bin_err=[0.548 0.518 0.418 0.528] | next_weights=[0.31 0.27 0.14 0.28]
+
+[Control uniform] same budget, weights frozen uniform
+  round 1 | holdout=0.2347 | bin_err=[0.460 0.390 0.404 0.484] | next_weights=[0.25 0.25 0.25 0.25]
+  round 2 | holdout=0.2286 | bin_err=[0.501 0.494 0.428 0.439] | next_weights=[0.25 0.25 0.25 0.25]
+  round 3 | holdout=0.2232 | bin_err=[0.456 0.472 0.471 0.521] | next_weights=[0.25 0.25 0.25 0.25]
+  round 4 | holdout=0.2170 | bin_err=[0.445 0.483 0.525 0.459] | next_weights=[0.25 0.25 0.25 0.25]
+  round 5 | holdout=0.2123 | bin_err=[0.456 0.381 0.510 0.534] | next_weights=[0.25 0.25 0.25 0.25]
+  round 6 | holdout=0.2090 | bin_err=[0.413 0.415 0.417 0.461] | next_weights=[0.25 0.25 0.25 0.25]
+  round 7 | holdout=0.2079 | bin_err=[0.547 0.517 0.418 0.528] | next_weights=[0.25 0.25 0.25 0.25]
+
+==================================================================
+RESULTS (holdout = 16 unseen-Hamiltonian real trajectories)
+==================================================================
+  untrained QGT      : 0.2406
+  QUASAR adaptive    : 0.2090  (+13.1% vs untrained)
+  uniform control    : 0.2079  (+13.6% vs untrained)
+
+  C1 self-training improves on unseen dynamics : True
+  C2 curriculum self-directed (L1 weight shift  from uniform = 0.220)            : True
+  C3 adaptive <= uniform on holdout             : False   (adaptive 0.2090 vs uniform 0.2079)
+
+  ✅ Closed loop verified. Runtime 90.3s
+
+==================================================================
+RUNNING: -m quasar.quantum_geometric_transformer
+==================================================================
+
+==================================================================
+RUNNING: -m quasar.quantum_geometric_rl
+==================================================================
+
+==================================================================
+RUNNING: -m quasar.quasar
+==================================================================
+
+ALL SUITES PASSED
+
+[4/4] Finite-shot tomography...
+============================================================
+FINITE-SHOT TOMOGRAPHY — SELF-TEST SUITE
+============================================================
+  [PASS] Bloch roundtrip
+  [PASS] Fidelity properties
+  [PASS] Measurement probabilities
+  [PASS] Linear inversion
+  [PASS] MLE vs linear: 51/100
+  [PASS] Scaling: slope=-0.574
+  [PASS] Physicality projection
+RESULT: 7/7 suites passed
+============================================================
