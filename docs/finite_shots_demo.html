@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUASAR — Finite-Shot Tomography</title>
+<style>
+  body { margin:0; background:#050510; color:#cceeff; font-family: system-ui, sans-serif; overflow:hidden; }
+  #controls { position:fixed; top:20px; right:20px; background:rgba(10,20,40,0.95); padding:20px; border-radius:12px; border:1px solid #335588; width:260px; z-index:100; }
+  #controls label { display:block; margin:12px 0 4px; font-size:13px; color:#88aacc; }
+  #controls input[type=range] { width:100%; }
+  #controls .value { float:right; color:#00ffaa; font-weight:600; }
+  #controls button { width:100%; margin-top:16px; padding:10px; background:#113355; color:#a0e0ff; border:1px solid #335588; border-radius:6px; cursor:pointer; }
+  #controls button:hover { background:#1a4466; }
+  #stats { margin-top:12px; font-size:12px; line-height:1.6; }
+  #canvas-container { width:100vw; height:100vh; }
+</style>
+</head>
+<body>
+<div id="controls">
+  <label>Shots per basis <span class="value" id="shots-val">512</span></label>
+  <input type="range" id="shots" min="16" max="4096" step="16" value="512">
+  
+  <label>Number of bases <span class="value" id="bases-val">6</span></label>
+  <input type="range" id="bases" min="3" max="6" step="1" value="6">
+  
+  <button id="resample">Resample</button>
+  
+  <div id="stats">
+    Fidelity: <span id="fid" style="color:#00ffaa">—</span><br>
+    Bures Error: <span id="berr" style="color:#ffaa66">—</span><br>
+    Difficulty: <span id="diff" style="color:#88ccff">—</span>
+  </div>
+</div>
+<div id="canvas-container"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+// --- Minimal 1-qubit tomography simulation ---
+const PAULI = {
+  X: [[0,1],[1,0]], Y: [[0,-1],[1,0]], Z: [[1,0],[0,-1]], I: [[1,0],[0,1]]
+};
+
+function matmul(a,b) {
+  return a.map((row,i) => b[0].map((_,j) => row.reduce((s,_,k) => s + a[i][k]*b[k][j], 0)));
+}
+function trace(m) { return m[0][0] + m[1][1]; }
+
+function rhoToBloch(rho) {
+  const rx = trace(matmul(rho, PAULI.X)).real || trace(matmul(rho, PAULI.X));
+  const ry = trace(matmul(rho, PAULI.Y)).real || trace(matmul(rho, PAULI.Y));
+  const rz = trace(matmul(rho, PAULI.Z)).real || trace(matmul(rho, PAULI.Z));
+  return [rx, ry, rz];
+}
+
+function blochToRho(r) {
+  return [
+    [(1+r[2])/2, (r[0]-1j*r[1])/2],
+    [(r[0]+1j*r[1])/2, (1-r[2])/2]
+  ];
+}
+
+function measure(rho, basis, shots) {
+  const U = basis === 'X' ? [[1,1],[1,-1]].map(r=>r.map(x=>x/Math.SQRT2)) :
+            basis === 'Y' ? [[1,0],[0,1]] : [[1,0],[0,1]]; // Simplified: just use Z for demo
+  // For true demo we'd rotate, but for visual effect we add noise proportional to 1/sqrt(shots)
+  const ev = trace(matmul(rho, PAULI[basis])).real || trace(matmul(rho, PAULI[basis]));
+  const noise = (Math.random()-0.5) * 2 / Math.sqrt(shots/16);
+  return Math.max(-1, Math.min(1, ev + noise));
+}
+
+function reconstruct(exps) {
+  // Linear inversion: r_i = Tr(rho sigma_i) = expectation
+  return [exps.X, exps.Y, exps.Z];
+}
+
+function fidelity(rho1, rho2) {
+  // F = Tr(rho1 rho2) + sqrt((1-Tr(rho1^2))(1-Tr(rho2^2)))
+  const t = trace(matmul(rho1, rho2));
+  const r1 = trace(matmul(rho1, rho1));
+  const r2 = trace(matmul(rho2, rho2));
+  return Math.max(0, t + Math.sqrt(Math.max(0, (1-r1)*(1-r2))));
+}
+
+function bures(rho1, rho2) {
+  return Math.sqrt(2 - 2*Math.sqrt(fidelity(rho1, rho2)));
+}
+
+// --- Three.js scene ---
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 100);
+camera.position.set(2.5, 1.5, 2.5);
+
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setSize(innerWidth, innerHeight);
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+// Bloch sphere wireframe
+const sphereGeo = new THREE.SphereGeometry(1, 32, 32);
+const sphereMat = new THREE.MeshBasicMaterial({color:0x334466, wireframe:true, transparent:true, opacity:0.3});
+scene.add(new THREE.Mesh(sphereGeo, sphereMat));
+
+// Axes
+const axisMat = new THREE.LineBasicMaterial({color:0x5577aa});
+for (const [a,b] of [[[0,0,-1.2],[0,0,1.2]], [[0,-1.2,0],[0,1.2,0]], [[-1.2,0,0],[1.2,0,0]]]) {
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a), new THREE.Vector3(...b)]), axisMat));
+}
+
+// True state (green)
+const trueGeo = new THREE.SphereGeometry(0.06, 16, 16);
+const trueMat = new THREE.MeshBasicMaterial({color:0x00ff66});
+const trueMesh = new THREE.Mesh(trueGeo, trueMat);
+scene.add(trueMesh);
+
+// Reconstructed state (orange)
+const reconGeo = new THREE.SphereGeometry(0.06, 16, 16);
+const reconMat = new THREE.MeshBasicMaterial({color:0xffaa33});
+const reconMesh = new THREE.Mesh(reconGeo, reconMat);
+scene.add(reconMesh);
+
+// Uncertainty ellipsoid
+const ellipsoidGeo = new THREE.SphereGeometry(1, 16, 16);
+const ellipsoidMat = new THREE.MeshBasicMaterial({color:0xff6633, transparent:true, opacity:0.15, wireframe:true});
+const ellipsoid = new THREE.Mesh(ellipsoidGeo, ellipsoidMat);
+scene.add(ellipsoid);
+
+// --- Simulation ---
+let trueRho = [[0.8, 0.2], [0.2, 0.2]]; // some mixed state
+let trueBloch = rhoToBloch(trueRho);
+
+function update() {
+  const shots = +document.getElementById('shots').value;
+  const bases = +document.getElementById('bases').value;
+  document.getElementById('shots-val').textContent = shots;
+  document.getElementById('bases-val').textContent = bases;
+  
+  // Measure
+  const exps = {
+    X: measure(trueRho, 'X', shots),
+    Y: measure(trueRho, 'Y', shots),
+    Z: measure(trueRho, 'Z', shots)
+  };
+  
+  const r = reconstruct(exps);
+  const rLen = Math.sqrt(r[0]**2 + r[1]**2 + r[2]**2);
+  const rClipped = r.map(x => x * Math.min(1, 1/(rLen+1e-9))); // project to sphere for viz
+  
+  const reconRho = blochToRho(rClipped);
+  const fid = fidelity(trueRho, reconRho);
+  const ber = bures(trueRho, reconRho);
+  
+  // Update meshes
+  trueMesh.position.set(trueBloch[0], trueBloch[1], trueBloch[2]);
+  reconMesh.position.set(rClipped[0], rClipped[1], rClipped[2]);
+  
+  // Uncertainty ellipsoid scales with 1/sqrt(shots)
+  const scale = 1.5 / Math.sqrt(shots);
+  ellipsoid.position.copy(reconMesh.position);
+  ellipsoid.scale.set(scale, scale, scale);
+  
+  // Update stats
+  document.getElementById('fid').textContent = fid.toFixed(4);
+  document.getElementById('berr').textContent = ber.toFixed(4);
+  document.getElementById('diff').textContent = rLen.toFixed(4);
+}
+
+document.getElementById('shots').addEventListener('input', update);
+document.getElementById('bases').addEventListener('input', update);
+document.getElementById('resample').addEventListener('click', () => {
+  // Random new true state
+  const theta = Math.random() * Math.PI;
+  const phi = Math.random() * Math.PI * 2;
+  const r = Math.random() * 0.9;
+  trueBloch = [r*Math.sin(theta)*Math.cos(phi), r*Math.sin(theta)*Math.sin(phi), r*Math.cos(theta)];
+  trueRho = blochToRho(trueBloch);
+  update();
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+update();
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
