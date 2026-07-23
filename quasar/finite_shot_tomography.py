@@ -124,8 +124,9 @@ class TomographicTrajectoryGenerator:
   self.n_bases=n_bases
   self.shots=shots
  def generate_trajectory(self,n_steps=10):
-  exact=self.base_generator.generate_trajectory(n_steps)
-  exact_states=exact['states']
+  axis,w,g=self.base_generator.sample_physics()
+  traj=self.base_generator.trajectory(n_steps,axis,w,g)
+  exact_states=[bloch_to_rho(r) for r in traj]
   reconstructed,errors,fids,raw_data=[],[],[],[]
   for rho in exact_states:
    data=self.sim.measure_random_bases(rho,self.n_bases)
