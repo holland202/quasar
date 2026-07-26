@@ -9,6 +9,7 @@
 Self-contained; no modifications to quasar.py needed.
 """
 
+import sys
 import numpy as np
 from itertools import product
 
@@ -270,7 +271,8 @@ def self_test():
 
     print(f"\nRESULT: {passed}/{total} suites passed")
     print("=" * 60)
+    return passed == total
 
 
 if __name__ == "__main__":
-    self_test()
+    sys.exit(0 if self_test() else 1)

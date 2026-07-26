@@ -30,6 +30,7 @@ if __name__ == "__main__":
         ("Quantum Geometric RL", "quasar.quantum_geometric_rl"),
         ("QUASAR Closed Loop", "quasar.quasar"),
         ("Finite-shot Tomography", "quasar.finite_shot_tomography"),
+        ("Multi-qubit Tomography", "quasar.multi_qubit_tomography"),
     ]
     
     all_ok = True
