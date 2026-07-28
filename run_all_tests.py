@@ -1,44 +1,52 @@
 #!/usr/bin/env python3
 """
-QUASAR - Run all test suites
+QUASAR — Run all verification suites.
 Usage: python run_all_tests.py
 """
 
 import subprocess
 import sys
 
+
 def run_suite(name, module):
     print("")
     print("=" * 66)
-    print("RUNNING: -m " + module)
+    print(f"RUNNING: {module}")
     print("=" * 66)
     print("")
     try:
         result = subprocess.run(
             [sys.executable, "-m", module],
-            capture_output=False,
-            text=True
+            capture_output=True,
+            text=True,
         )
+        print(result.stdout)
+        if result.stderr:
+            print("STDERR:", result.stderr)
         return result.returncode == 0
     except Exception as e:
-        print("ERROR running " + module + ": " + str(e))
+        print(f"ERROR running {module}: {e}")
         return False
+
 
 if __name__ == "__main__":
     suites = [
-        ("Quantum Geometric Transformer", "quasar.quantum_geometric_transformer"),
-        ("Quantum Geometric RL", "quasar.quantum_geometric_rl"),
-        ("QUASAR Closed Loop", "quasar.quasar"),
-        ("Finite-shot Tomography", "quasar.finite_shot_tomography"),
-        ("Multi-qubit Tomography", "quasar.multi_qubit_tomography"),
+        ("Core Math", "tests.test_core"),
+        ("Transformer", "tests.test_transformer"),
+        ("QUASAR Closed Loop", "tests.test_quasar"),
+        ("Tomography", "tests.test_tomography"),
+        ("QGT Self-Test", "quasar.quantum_geometric_transformer"),
+        ("QGRL", "quasar.quantum_geometric_rl"),
+        ("Finite-Shot Tomography", "quasar.finite_shot_tomography"),
+        ("Multi-Qubit Tomography", "quasar.multi_qubit_tomography"),
+        ("Curriculum Scale", "experiments.curriculum_scale"),
     ]
-    
+
     all_ok = True
-    
     for name, module in suites:
         ok = run_suite(name, module)
         all_ok = all_ok and ok
-    
+
     print("")
     print("=" * 66)
     if all_ok:
