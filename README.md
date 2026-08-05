@@ -1,3 +1,17 @@
+> ## ⚠️ ARCHIVED — superseded by [quasar-v2](https://github.com/holland202/quasar-v2)
+>
+> This repo is v0.1 of the QUASAR line, kept read-only for the history of
+> findings F1–F4. Active development, the full findings log (F1–F16, incl.
+> kept refutations), and code that passes its gates on a cold clone all
+> live in **quasar-v2**.
+>
+> Known-broken as archived, recorded rather than hidden: `quasar/__init__.py`
+> imports `quasar.core`, `quasar.gradients`, and `quasar.experiment_logger`,
+> which were never published to this repo — `import quasar` fails on a cold
+> clone, and the CI workflow dies at `pip install -e .` (no packaging file).
+> v2 is a structurally different codebase, so these imports were not fixed
+> here; the honest resolution is this notice. Archived 2026-08-04.
+
 # QUASAR — Quantum-geometric Unified Self-training ARchitecture
 
 [![verify-all-claims](https://github.com/holland202/quasar/actions/workflows/tests.yml/badge.svg)](https://github.com/holland202/quasar/actions/workflows/tests.yml)
