@@ -121,6 +121,12 @@ def demo_closed_loop_with_tomography():
     class DummyGenerator:
         def __init__(self, seed=42):
             self.rng = np.random.default_rng(seed)
+        def sample_physics(self, w_max=1.2, g_max=0.12):
+            # Was missing: finite_shot_tomography calls this on its base
+            # generator, so the stub failed the interface it stood in for.
+            axis = self.rng.standard_normal(3)
+            axis /= np.linalg.norm(axis)
+            return axis, self.rng.uniform(0.05, w_max), self.rng.uniform(0.0, g_max)
         def generate_trajectory(self, n_steps=10):
             r = np.array([0, 0, 1], dtype=float)
             states = [bloch_to_rho(r)]

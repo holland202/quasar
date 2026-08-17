@@ -131,24 +131,40 @@ class Learner:
         return errs
 
     def train_step(self, X, Y, lr=0.12, eps=1e-5):
-        for p in self.qgt.all_params():
-            g = np.zeros_like(p)
-            it = np.nditer(p, flags=['multi_index'], op_flags=['readwrite'])
-            for v in it:
-                idx = it.multi_index
-                o = v.item()
-                v[...] = o + eps
-                lp = self.loss(X, Y)
-                v[...] = o - eps
-                lm = self.loss(X, Y)
-                v[...] = o
-                g[idx] = (lp - lm) / (2 * eps)
-            p -= lr * g
+        """Delegates to the transformer; the loop lives on QGT now."""
+        self.qgt.train_step(X, Y, lr=lr, eps=eps)
 
 
 # ==================================================================
 # 3. SELF-DIRECTION — error-driven curriculum (the closed loop)
 # ==================================================================
+class _BinProgressSampler:
+    """Learning-progress weighting: prioritize bins whose error is MOVING.
+
+    A bin the learner is already perfect at, and a bin it cannot touch, both
+    produce near-zero progress and get deprioritized. A bin mid-learning
+    produces the largest |delta| and gets the budget.
+    """
+
+    def __init__(self, n_bins, floor=0.05):
+        self.n_bins = n_bins
+        self.floor = floor
+        self.prev = None
+
+    def weights(self, bin_errs):
+        bin_errs = np.asarray(bin_errs, dtype=float)
+        if self.prev is None:
+            self.prev = bin_errs.copy()
+            return np.ones(self.n_bins) / self.n_bins
+        progress = np.abs(self.prev - bin_errs)
+        self.prev = bin_errs.copy()
+        if progress.sum() <= 0:
+            return np.ones(self.n_bins) / self.n_bins
+        w = progress / progress.sum()
+        w = np.maximum(w, self.floor)
+        return w / w.sum()
+
+
 class Quasar:
     """The full loop. n_bins difficulty bins over (w, g) physics space.
 
@@ -157,7 +173,13 @@ class Quasar:
     generation weights proportional to error -> generate -> train.
     """
 
-    def __init__(self, seed=0, n_bins=4, seq_len=6):
+    def __init__(self, seed=0, n_bins=4, seq_len=6, curriculum="error"):
+        if curriculum not in ("uniform", "error", "progress"):
+            raise ValueError(
+                f"curriculum must be uniform|error|progress, got {curriculum!r}")
+        self.curriculum = curriculum
+        self._progress_sampler = (_BinProgressSampler(n_bins)
+                                  if curriculum == "progress" else None)
         self.gen = Generator(seed)
         self.learner = Learner(seed)
         self.n_bins = n_bins
@@ -202,7 +224,20 @@ class Quasar:
         return errs
 
     def self_direct(self, bin_errs, temperature=3.0, floor=0.05):
-        """Weights <- normalized errors (with floor so no bin starves)."""
+        """Update generation weights according to self.curriculum.
+
+        uniform  -- weights frozen; the control arm.
+        error    -- weights <- normalized errors (v0.1 behaviour, unchanged).
+        progress -- weights <- normalized |change in error| per bin, i.e.
+                    learning progress. See F16 in quasar-v2: error-driven
+                    sampling measured 8.08% WORSE than progress-driven,
+                    0/5 seeds. Error is not learnability.
+        """
+        if self.curriculum == "uniform":
+            return                      # control arm: do not self-direct
+        if self.curriculum == "progress":
+            self.weights = self._progress_sampler.weights(bin_errs)
+            return
         e = np.maximum(bin_errs, 1e-9) ** temperature
         w = e / e.sum()
         w = np.maximum(w, floor)

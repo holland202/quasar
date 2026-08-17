@@ -250,6 +250,29 @@ class QuantumGeometricTransformer:
                 total += bures_distance(pred[b, t], y[b, t]) ** 2
         return total / (x.shape[0] * x.shape[1])
 
+    def train_step(self, x, y, lr=0.12, eps=1e-5):
+        """One finite-difference gradient step on every parameter.
+
+        Moved here 2026-08-17 from Learner.train_step in quasar/quasar.py,
+        which operated only on this object's params and loss. Behaviour is
+        identical; Learner now delegates. tests/test_transformer.py had
+        called qgt.train_step since it was written, against a method that
+        lived on the wrapper instead.
+        """
+        for p in self.all_params():
+            g = np.zeros_like(p)
+            it = np.nditer(p, flags=['multi_index'], op_flags=['readwrite'])
+            for v in it:
+                idx = it.multi_index
+                o = v.item()
+                v[...] = o + eps
+                lp = self.loss(x, y)
+                v[...] = o - eps
+                lm = self.loss(x, y)
+                v[...] = o
+                g[idx] = (lp - lm) / (2 * eps)
+            p -= lr * g
+
     def all_params(self):
         params = []
         params.extend(self.attn.params())
@@ -262,7 +285,15 @@ class QuantumGeometricTransformer:
 # SELF-TEST
 # ============================================================
 
-def run_self_test():
+def run_self_test(verbose=True):
+    """Run the six QGT suites. Raises AssertionError on any failure.
+
+    `verbose` added 2026-08-17: tests/test_transformer.py called
+    run_self_test(verbose=False) since it was written, against a signature
+    that took no arguments. The suite had never run, so nothing surfaced it.
+    """
+    import builtins
+    print = builtins.print if verbose else (lambda *a, **kw: None)
     print("=" * 60)
     print("QUANTUM GEOMETRIC TRANSFORMER v1.0 — SELF-TEST")
     print("=" * 60)

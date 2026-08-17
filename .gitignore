@@ -3,3 +3,9 @@ __pycache__/
 *.png
 !assets/*.png
 .venv/
+
+# build artifacts
+quasar.egg-info/
+*.egg-info/
+build/
+dist/

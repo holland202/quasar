@@ -5,7 +5,7 @@ from quasar.finite_shot_tomography import (
     bloch_to_rho,
     rho_to_bloch,
     fidelity,
-    bures_distance_dm,
+    bures_distance as bures_distance_dm,
     MeasurementSimulator,
     StateReconstructor,
     run_all_tests,

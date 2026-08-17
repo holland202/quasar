@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from numpy.linalg import norm
 
-from quasar.core import project_bloch, bures_distance
+from quasar import project_bloch, bures_distance
 from quasar.quantum_geometric_transformer import (
     QuantumGeometricTransformer,
     BuresAttention,
@@ -38,7 +38,7 @@ class TestTransformer(unittest.TestCase):
             axis = rng.standard_normal(3)
             axis = axis / norm(axis)
             for t in range(8):
-                from quasar.core import so3
+                from quasar import so3
                 R = so3(axis, 0.2 * t)
                 X[b, t] = project_bloch(R @ r0)
                 R_next = so3(axis, 0.2 * (t + 1))

@@ -3,7 +3,7 @@ import numpy as np
 from numpy import sqrt, pi, cos, sin
 from numpy.linalg import norm
 
-from quasar.core import (
+from quasar import (
     project_bloch,
     bures_distance,
     bures_distance_gradient,
