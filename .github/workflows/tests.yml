@@ -10,6 +10,10 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     strategy:
+      # One version failing must not cancel the others. Run #45 failed on 3.12
+      # and GitHub cancelled the in-progress 3.13 job, hiding whether 3.13
+      # would have passed. Every version now reports its own verdict.
+      fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
@@ -19,7 +23,25 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install package
         run: pip install -e .
+      - name: Record environment
+        run: |
+          python -c "import sys, numpy; print('python', sys.version); print('numpy', numpy.__version__)"
+      - name: Seed lint (no unseeded RNG)
+        run: |
+          python scripts/seed_lint.py --self-check
+          python scripts/seed_lint.py
       - name: Run all test suites
         run: python run_all_tests.py
+      - name: Determinism gate
+        # The suites are fully seeded. Two runs must produce byte-identical
+        # output. If they diverge, an unseeded RNG has re-entered the codebase
+        # and this gate fails before it can become an intermittent red build.
+        run: |
+          python run_all_tests.py > run_a.txt
+          python run_all_tests.py > run_b.txt
+          # unittest prints wall-clock durations; normalise those, compare the rest.
+          sed -E 's/Ran ([0-9]+) tests in [0-9.]+s/Ran \1 tests in Xs/' run_a.txt > a.norm
+          sed -E 's/Ran ([0-9]+) tests in [0-9.]+s/Ran \1 tests in Xs/' run_b.txt > b.norm
+          diff a.norm b.norm
       - name: Run uneven-competence experiment
         run: python experiments/quasar_experiment2.py

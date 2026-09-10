@@ -87,10 +87,18 @@ def bures_distance2q(rho, sigma):
     return np.sqrt(2.0 - 2.0 * np.sqrt(f))
 
 
+_DEFAULT_MEASUREMENT_SEED = 20260915
+
+
 def measure_pauli_expectations(rho, shots, rng=None):
-    """Simulate finite-shot measurement of all 15 Pauli observables."""
+    """Simulate finite-shot measurement of all 15 Pauli observables.
+
+    rng=None now falls back to a FIXED seed rather than fresh entropy, so a
+    caller that forgets to pass an rng still gets a reproducible result.
+    Pass an explicit rng for independent draws.
+    """
     if rng is None:
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(_DEFAULT_MEASUREMENT_SEED)
     expectations = []
     for P in _TWO_QUBIT_PAULI:
         ev = np.trace(rho @ P).real

@@ -45,10 +45,13 @@ class TestCoreMath(unittest.TestCase):
         self.assertLess(diff, 1e-3)
 
     def test_so3_orthogonal(self):
+        # Seeded: was drawing from the unseeded global np.random, so each CI
+        # job tested a different set of rotations. Tolerances unchanged.
+        rng = np.random.default_rng(20260913)
         for _ in range(20):
-            axis = np.random.randn(3)
+            axis = rng.standard_normal(3)
             axis = axis / norm(axis)
-            angle = np.random.uniform(0, 2 * pi)
+            angle = rng.uniform(0, 2 * pi)
             R = so3(axis, angle)
             np.testing.assert_allclose(R @ R.T, np.eye(3), atol=1e-10)
             self.assertAlmostEqual(np.linalg.det(R), 1.0, places=10)

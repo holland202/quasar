@@ -138,9 +138,18 @@ class TomographicTrajectoryGenerator:
   return{'exact_states':exact_states,'reconstructed_states':reconstructed,'reconstruction_errors':errors,'fidelities':fids,'measurement_data':raw_data,'shots':self.shots,'n_bases':self.n_bases}
  def generate_batch(self,n_trajectories,n_steps=10):
   return[self.generate_trajectory(n_steps)for _ in range(n_trajectories)]
+# Fixed seed for the self-test problem set. These tests previously drew from
+# the unseeded global np.random, so _t5's n>=40 gate sampled a new problem set
+# on every run: measured n over 60 unseeded trials was 41..62 (mean 50.3,
+# std 4.6), i.e. a 2.3-sigma margin with an observed low of 41. Thresholds are
+# unchanged; only the problem set is now fixed.
+_SELFTEST_SEED=20260914
+
+
 def _t1():
+ rng=np.random.default_rng(_SELFTEST_SEED)
  for _ in range(100):
-  r=np.random.randn(3);r=r/np.linalg.norm(r)*np.random.random()
+  r=rng.standard_normal(3);r=r/np.linalg.norm(r)*rng.random()
   rho=bloch_to_rho(r)
   assert np.allclose(r,rho_to_bloch(rho),atol=1e-12)
   assert np.allclose(rho,rho.conj().T,atol=1e-12)
@@ -148,14 +157,15 @@ def _t1():
   assert np.all(np.linalg.eigvalsh(rho)>=-1e-12)
  print("  [PASS] Bloch roundtrip")
 def _t2():
+ rng=np.random.default_rng(_SELFTEST_SEED+1)
  for _ in range(20):
-  r=np.random.randn(3);r=r/np.linalg.norm(r)*np.random.random()
+  r=rng.standard_normal(3);r=r/np.linalg.norm(r)*rng.random()
   assert np.isclose(fidelity(bloch_to_rho(r),bloch_to_rho(r)),1.0,atol=1e-10)
  p0,p1=np.array([1,0],dtype=complex),np.array([0,1],dtype=complex)
  assert np.isclose(fidelity(np.outer(p0,p0.conj()),np.outer(p1,p1.conj())),0.0,atol=1e-10)
  for _ in range(20):
-  r1=np.random.randn(3);r1=r1/np.linalg.norm(r1)*np.random.random()
-  r2=np.random.randn(3);r2=r2/np.linalg.norm(r2)*np.random.random()
+  r1=rng.standard_normal(3);r1=r1/np.linalg.norm(r1)*rng.random()
+  r2=rng.standard_normal(3);r2=r2/np.linalg.norm(r2)*rng.random()
   a,b=bloch_to_rho(r1),bloch_to_rho(r2)
   assert np.isclose(fidelity(a,b),fidelity(b,a),atol=1e-10)
  print("  [PASS] Fidelity properties")
@@ -174,10 +184,11 @@ def _t4():
  by=np.array([[1,1],[1j,-1j]],dtype=complex)/np.sqrt(2)
  bz=np.eye(2,dtype=complex)
  rec=StateReconstructor(method='linear')
- for _ in range(50):
-  r=np.random.randn(3);r=r/np.linalg.norm(r)*np.random.random()
+ rng=np.random.default_rng(_SELFTEST_SEED+2)
+ for i in range(50):
+  r=rng.standard_normal(3);r=r/np.linalg.norm(r)*rng.random()
   rho=bloch_to_rho(r)
-  sim=MeasurementSimulator(shots=100000,seed=None)
+  sim=MeasurementSimulator(shots=100000,seed=_SELFTEST_SEED+2+i)
   d={'bases':[bx,by,bz],'counts':[],'probs':[],'shots':sim.shots}
   for b in[bx,by,bz]:
    c,p=sim.measure(rho,b);d['counts'].append(c);d['probs'].append(p)
@@ -187,9 +198,10 @@ def _t5():
  rl=StateReconstructor(method='linear')
  rm=StateReconstructor(method='mle')
  sim=MeasurementSimulator(shots=512,seed=42)
+ rng=np.random.default_rng(_SELFTEST_SEED+3)
  n=0
  for _ in range(100):
-  r=np.random.randn(3);r=r/np.linalg.norm(r)*np.random.random()
+  r=rng.standard_normal(3);r=r/np.linalg.norm(r)*rng.random()
   rho=bloch_to_rho(r)
   d=sim.measure_random_bases(rho,6)
   r_mle=rm.reconstruct(d)

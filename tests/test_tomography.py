@@ -11,12 +11,23 @@ from quasar.finite_shot_tomography import (
     run_all_tests,
 )
 
+# Fixed seeds. Before this, these three tests drew states from the unseeded
+# global np.random, so every CI job sampled a different problem set.
+# test_mle_vs_linear was the live flake: measured over 60 unseeded trials its
+# statistic n ranged 41..62 (mean 50.3, std 4.6) against a threshold of
+# n >= 40 -- a 2.3-sigma margin, and one observed trial landed at 41.
+# Seeding fixes the problem set; the thresholds below are UNCHANGED.
+SEED_ROUNDTRIP = 20260910
+SEED_LINEAR = 20260911
+SEED_MLE = 20260912
+
 
 class TestTomography(unittest.TestCase):
     def test_bloch_roundtrip(self):
+        rng = np.random.default_rng(SEED_ROUNDTRIP)
         for _ in range(100):
-            r = np.random.randn(3)
-            r = r / np.linalg.norm(r) * np.random.random()
+            r = rng.standard_normal(3)
+            r = r / np.linalg.norm(r) * rng.random()
             rho = bloch_to_rho(r)
             r2 = rho_to_bloch(rho)
             np.testing.assert_allclose(r, r2, atol=1e-12)
@@ -45,11 +56,12 @@ class TestTomography(unittest.TestCase):
         by = np.array([[1, 1], [1j, -1j]], dtype=complex) / np.sqrt(2)
         bz = np.eye(2, dtype=complex)
         rec = StateReconstructor(method='linear')
-        for _ in range(50):
-            r = np.random.randn(3)
-            r = r / np.linalg.norm(r) * np.random.random()
+        rng = np.random.default_rng(SEED_LINEAR)
+        for i in range(50):
+            r = rng.standard_normal(3)
+            r = r / np.linalg.norm(r) * rng.random()
             rho = bloch_to_rho(r)
-            sim = MeasurementSimulator(shots=100000, seed=None)
+            sim = MeasurementSimulator(shots=100000, seed=SEED_LINEAR + i)
             d = {'bases': [bx, by, bz], 'counts': [], 'probs': [], 'shots': sim.shots}
             for b in [bx, by, bz]:
                 c, p = sim.measure(rho, b)
@@ -61,10 +73,11 @@ class TestTomography(unittest.TestCase):
         rl = StateReconstructor(method='linear')
         rm = StateReconstructor(method='mle')
         sim = MeasurementSimulator(shots=512, seed=42)
+        rng = np.random.default_rng(SEED_MLE)
         n = 0
         for _ in range(100):
-            r = np.random.randn(3)
-            r = r / np.linalg.norm(r) * np.random.random()
+            r = rng.standard_normal(3)
+            r = r / np.linalg.norm(r) * rng.random()
             rho = bloch_to_rho(r)
             d = sim.measure_random_bases(rho, 6)
             r_mle = rm.reconstruct(d)
