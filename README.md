@@ -12,6 +12,7 @@ measurable claim rather than a vibe.
 
 Pure NumPy. No GPU. No quantum hardware.
 
+[![verify-all-claims](https://github.com/holland202/quasar/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/holland202/quasar/actions/workflows/tests.yml)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 
