@@ -2,32 +2,34 @@
 
 ## Origin
 
-**Chad Holland** (`holland202`)
+Chad Holland (GitHub: holland202)
 
-Supported by repository history: initial commits, architecture, experimental design, and ongoing maintenance of this repository.
+Repository history and commit authorship establish Chad Holland as the originator of the QUASAR research line and the primary author of the code and documentation present in this repository.
 
 ## Contribution Categories
 
-| Category | Attribution | Basis |
-|----------|-------------|-------|
-| ORIGIN | Chad Holland | Repository creation and founding design |
-| CONCEPT | Chad Holland | Closed-loop generator → curriculum → learner framing; single-qubit channel dynamics test domain |
-| IMPLEMENTATION | Chad Holland | Core modules, packaging, test suite repairs (2026-08-17 fix), curriculum switch |
-| EXPERIMENT | Chad Holland | Registered claims C1–C3; curriculum scale measurements |
-| ANALYSIS | Chad Holland | Interpretation of results and explicit retention of failures |
-| RESULT | Observed outcomes only (see PROVENANCE.md) | Not claims of general truth beyond the registered experiments |
-| REPRODUCTION | None recorded | No independent third-party reproduction entries exist in this repository |
-| REFUTATION | Documented in-repo and in successor | C3 kept as failure; F18 and F16 referenced from quasar-v2 |
-| MAINTENANCE | Chad Holland | Packaging, import repairs, CI |
+Based on repository history and available evidence:
+
+| Category          | Attribution                                      |
+|-------------------|--------------------------------------------------|
+| ORIGIN            | Chad Holland                                     |
+| CONCEPT           | Chad Holland                                     |
+| IMPLEMENTATION    | Chad Holland                                     |
+| EXPERIMENT        | Chad Holland                                     |
+| ANALYSIS          | Chad Holland                                     |
+| RESULT            | Observed results are recorded in the repository; they are not elevated beyond the experiments that produced them |
+| REPRODUCTION      | None recorded in this repository                 |
+| REFUTATION        | Failures and refutations (including C3 and references to F16/F18 from the successor line) are retained in the repository history and documentation |
+| MAINTENANCE       | Chad Holland                                     |
 
 ## Other Contributors
 
-None identified from repository history.
+No other human contributors are established by the repository history at the time of this document.
 
 ## Automated Assistance
 
-Material assistance from AI systems in documentation, code repair, and analysis is acknowledged where it occurred. AI systems are not listed as human authors.
+Material assistance from AI systems in implementation, documentation, testing, or research support is not itemized in the current repository record. Any such assistance does not constitute human authorship.
 
-## Scope of Attribution
+## Scope Note
 
-Attribution is limited to what the commit history and available artifacts support. No additional contributors or independent verification are inferred.
+Authorship statements above are limited to what the repository history supports. They do not constitute claims of scientific priority, novelty, or independent verification.

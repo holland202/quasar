@@ -1,20 +1,21 @@
 cff-version: 1.2.0
-message: "If you use QUASAR in your work, please cite it as below."
+message: "If you use this software, please cite it as below."
 title: "QUASAR: Quantum-geometric Unified Self-training ARchitecture"
 authors:
   - family-names: "Holland"
     given-names: "Chad"
     alias: "holland202"
-version: 0.1.0
-date-released: 2026-07-10
+version: "0.2.0"
+date-released: "2026-08-17"
 url: "https://github.com/holland202/quasar"
 repository-code: "https://github.com/holland202/quasar"
 license: MIT
 keywords:
+  - self-training
+  - curriculum learning
   - quantum geometry
   - Bures metric
-  - self-training
   - synthetic data
-  - curriculum learning
-  - transformer
+  - NumPy
   - reinforcement learning
+type: software

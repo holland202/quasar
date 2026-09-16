@@ -4,81 +4,62 @@
 
 - **Repository**: holland202/quasar
 - **Canonical URL**: https://github.com/holland202/quasar
-- **Purpose**: Implementation and experimentation on a closed-loop learner that generates its own training data (generator → curriculum → learner) in the single-qubit channel dynamics domain.
-- **License**: MIT
+- **Purpose**: Implementation and experimentation with a closed-loop self-training architecture (generator → curriculum → learner) on single-qubit channel dynamics. Pure NumPy. No quantum hardware.
+- **License**: MIT (see LICENSE)
 
 ## Origin
 
-Initiated by Chad Holland. Earliest identifiable repository history supports origin and primary implementation by the same individual.
+Chad Holland initiated the work. The earliest public repository history and commit record support this attribution. No earlier independent public origin is documented in this repository.
 
 ## Contributions
 
-See `AUTHORS.md` for category-level attribution. All primary categories currently map to Chad Holland on the basis of repository history.
+See AUTHORS.md for the category breakdown. All primary categories currently map to Chad Holland on the basis of repository history.
 
 ## Research Status Distinction
 
-| Status | Meaning in this repository |
-|--------|----------------------------|
-| IMPLEMENTED | Code and tests exist and run |
-| EXPERIMENTAL | Results obtained under registered conditions |
-| VERIFIED | Not claimed; requires independent verification protocol |
-| REPRODUCED | No independent third-party reproductions recorded |
-| REFUTED | Explicitly recorded failures retained |
-| UNRESOLVED | Open questions remain |
-| NOT TESTED | Items outside current experimental scope |
+| Status        | Meaning in this repository                                      |
+|---------------|-----------------------------------------------------------------|
+| IMPLEMENTED   | Code and tests exist and can be executed                        |
+| EXPERIMENTAL  | Experiments have been run under the conditions described        |
+| VERIFIED      | Not claimed here; requires independent verification             |
+| REPRODUCED    | No independent reproduction is recorded in this repository      |
+| REFUTED       | Specific claims that failed are retained (see below)            |
+| UNRESOLVED    | Open questions remain                                           |
+| NOT TESTED    | Explicitly out of scope or not yet attempted                    |
 
-**Implemented does not mean scientifically validated.**
+“Implemented” or “experimental” must not be read as “scientifically validated.”
 
 ## Experimental Lineage
 
-### Claim / Experiment C1 — Self-training transfers to unseen dynamics
+Significant experiments and results recorded in this repository (and its successor line) include:
 
-- **Status**: EXPERIMENTAL (registered positive under local tests)
-- **Parent revision**: historical line culminating in current main
-- **Result summary**: Learner improves on held-out set it never generated (`test_c1_self_training_improves`)
-- **Notes**: Local test suite evidence only. Not independently reproduced in this record.
+- Self-training transfer (C1) — status recorded as supported under the tests present in this repository.
+- Curriculum self-direction (C2) — status recorded as supported under the tests present in this repository.
+- Adaptive sampling vs uniform at demo scale (C3) — recorded as failure; retained.
+- References to successor findings (quasar-v2 F16, F18) that refute or qualify earlier framing are retained rather than removed.
 
-### Claim / Experiment C2 — Curriculum self-directs
-
-- **Status**: EXPERIMENTAL (registered positive under local tests)
-- **Result summary**: Generation weights move away from uniform by more than 0.05 in L1 without external instruction (`test_c2_curriculum_self_directs`)
-- **Notes**: Local test suite evidence only.
-
-### Claim / Experiment C3 — Adaptive sampling vs uniform at demo scale
-
-- **Status**: REFUTED (kept)
-- **Result summary**: Error-driven wins 1/5 seeds at −0.08% vs uniform; progress wins 2/5 at −0.21%. Neither beats control at this scale.
-- **Failure mode**: Adaptive curricula do not outperform uniform at the registered demo scale.
-- **Evidence**: `experiments/curriculum_scale.py` and associated measurements.
-- **Affected conclusion**: Adaptive sampling advantage is not established at this scale.
-- **Correction / subsequent**: Retained as failure. Related stronger negative results appear in successor repository (see below).
-
-### Related results from successor line (quasar-v2)
-
-- **F18**: Bures-metric attention does not beat plain dot-product attention (0/5 seeds). Founding geometric premise refuted for the measured regime. Status: REFUTED (kept).
-- **F16**: Error-driven sampling measured worse than progress-driven. Status: REFUTED for the error-as-learnability framing (kept).
-
-These are referenced, not absorbed. Full artifacts live in the successor repository.
+Detailed per-experiment fields (exact parent/candidate revisions, evaluator hashes, full seed lists, artifact hashes) are not yet centralized in a machine-readable manifest in this repository. Where present, they appear in experiment scripts, test outputs, or the successor repository.
 
 ## Independent Reproduction
 
-No independent third-party reproduction records are present in this repository.
+None recorded in this repository.
 
 ## Refutation / Failure Record
 
 Failures are first-class:
 
-- C3 retained as registered failure.
-- Packaging/import failures (2026-07-26 to 2026-08-17) documented in README and fixed by repointing rather than invention.
-- Successor-line refutations (F18, F16) explicitly preserved and linked.
+- C3 (adaptive sampling does not beat uniform at the recorded demo scale) is kept.
+- References to F18 (Bures-metric attention does not beat plain attention under the recorded conditions) and F16 (error-driven vs progress-driven) from the successor line are retained as load-bearing negative results.
+
+Original claims, observed limitations, and subsequent corrections remain visible in the history.
 
 ## Corrections
 
-- 2026-08-17: Import and packaging repairs. Cause was an `__init__.py` written against a planned refactor that never landed. Tests and packaging were aligned to existing modules. No experimental results were altered.
+Methodological and packaging corrections (including the 2026-08-17 restoration of importability and test alignment) are documented in the README and commit history. Corrections are additive; prior failing states are not erased.
 
 ## Scope of Evidence
 
-This repository documents implementation and local experimentation in classical simulation of single-qubit geometry.
+This repository documents implementation and experimentation on a classical simulation of single-qubit geometry.
 
 It does **not** establish:
 
@@ -86,9 +67,12 @@ It does **not** establish:
 - general intelligence
 - autonomy
 - quantum advantage
-- human-level novelty
-- results that survive independent reproduction or multi-regime generalization
+- performance on quantum hardware
+- independent scientific validation of the recorded results
+- generalization beyond the described experimental conditions
 
-Successful execution of the test suite and registered experiments does not by itself establish any of the above.
+Successful execution of the code and tests does not by itself establish any of the above.
 
-Active development and stronger experimental claims (including retained refutations) are tracked in the successor repository [quasar-v2](https://github.com/holland202/quasar-v2).
+## Relationship to Other Repositories
+
+This repository is an instrument. Cross-repository relationships, promotion gates, and higher-level research-record functions (if any) are intended to live in a separate research-operating layer rather than inside this codebase.
