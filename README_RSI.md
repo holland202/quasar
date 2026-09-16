@@ -1,5 +1,12 @@
 # QUASAR RSI Extension — Bounded Recursive Self-Improvement
 
+> **STATUS: NOT ADMISSIBLE (VOID). The outer loop has not been run.**
+> The registered prerequisite P0 failed on device: no fixed curriculum
+> beats uniform by >3% at any tested budget (80 / 240 / 720 work units),
+> with paired SEMs 4x-14x below the resolution bar. R1 and R2 below are
+> registered claims that were **never tested**, not results. See
+> [RSI1_P0_RECORD.md](RSI1_P0_RECORD.md).
+
 This branch adds a **meta-curriculum evolutionary loop** on top of the existing Quasar closed loop.
 
 ## What was added
