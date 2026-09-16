@@ -14,6 +14,10 @@ quasar.gradients and quasar.experiment_logger -- modules that were never
 written in this line. That single unreachable import made `import quasar`
 fail on a cold clone even though six of seven modules run fine standalone.
 The symbols below live where they always lived.
+
+RSI extension (branch rsi-meta-curriculum):
+  CurriculumGenome + MetaQuasar provide a bounded outer evolutionary loop
+  that improves the curriculum policy parameters themselves.
 """
 
 from quasar.quantum_geometric_transformer import (
@@ -42,5 +46,10 @@ from quasar.quantum_geometric_rl import (
     evaluate_policy,
     train,
 )
+from quasar.rsi import (
+    CurriculumGenome,
+    MetaQuasar,
+    run_rsi_demo,
+)
 
-__version__ = "0.1.1"
+__version__ = "0.1.1+rsi"
