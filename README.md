@@ -18,6 +18,23 @@ Pure NumPy. No GPU. No quantum hardware.
 
 ---
 
+## RSI extension (this branch)
+
+This branch (`rsi-meta-curriculum`) adds a **bounded recursive self-improvement**
+layer: an outer evolutionary loop that improves the curriculum policy parameters
+themselves (`temperature`, `floor`, `progress_mix`).
+
+See **[README_RSI.md](README_RSI.md)** for the design, claims (R1/R2), and how to run it:
+
+```bash
+python -m quasar.rsi
+```
+
+The original inner loop is unchanged. Only the *rule that decides what to study
+next* is being evolved.
+
+---
+
 ## Status, honestly
 
 **Fixed 2026-08-17.** From 2026-07-26 until that date this repo did not import
@@ -63,6 +80,7 @@ python run_all_tests.py                          # all 9 suites
 python -m quasar.quantum_geometric_transformer   # QGT self-test, 6 suites
 python -m quasar.quasar                          # the closed loop
 python -m quasar.quantum_geometric_rl            # QGT as control policy
+python -m quasar.rsi                             # RSI meta-curriculum demo (this branch)
 ```
 
 ---
@@ -78,6 +96,7 @@ python -m quasar.quantum_geometric_rl            # QGT as control policy
 | `quasar/finite_shot_tomography.py` | Born-rule simulator, MLE reconstruction |
 | `quasar/multi_qubit_tomography.py` | 15-dim generalized Bloch, superfidelity |
 | `quasar/tomography_bridge.py` | Tomography wrapper for the generator |
+| `quasar/rsi.py` | **RSI layer.** Outer evolutionary loop over curriculum genomes |
 
 Difficulty is stratified into bins by rotation speed, and the stratification is
 *verified* — `test_difficulty_stratification` asserts measured Bures path length
