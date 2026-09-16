@@ -38,6 +38,63 @@ Significant experiments and results recorded in this repository (and its success
 - Adaptive sampling vs uniform at demo scale (C3) — recorded as failure; retained.
 - References to successor findings (quasar-v2 F16, F18) that refute or qualify earlier framing are retained rather than removed.
 
+### RSI-1 — bounded recursive self-improvement via meta-curriculum
+
+Branch `rsi-meta-curriculum`. An outer evolutionary loop over curriculum
+policy parameters (`CurriculumGenome`: temperature, floor, progress_mix)
+around a frozen QGT, a frozen generator, and a held-out Bures evaluator.
+
+Registered claims R1 and R2 are **NOT TESTED**. The experiment was stopped
+at its prerequisite and the outer loop was never run.
+
+```
+RSI-1
+  └── P0 substrate qualification  (rsi_p0_precondition.py)
+       ├──  80 work units  -> resolved null
+       ├── 240 work units  -> resolved null
+       └── 720 work units  -> resolved null
+              |
+              v
+         P0b = FALSE
+              |
+              v
+       RSI-1 = NOT ADMISSIBLE (VOID)
+              |
+              +-- R1 = NOT TESTED
+              +-- R2 = NOT TESTED
+```
+
+| Field | Value |
+|---|---|
+| Candidate revision | `061368f` (`rsi-meta-curriculum`) |
+| Record commit | `894955b` |
+| Evaluator | held-out Bures loss, `make_holdout(seed=777, n=16)`, unmodified |
+| Seed hash | `10c3814e9f7c178b` |
+| Seeds | SELECT 1001-1008 reserved and unused; TEST 9001-9008 used; disjoint |
+| Budgets | (5,8,2), (10,12,2), (15,16,3) work units 80 / 240 / 720 |
+| Environment | Python 3.14.6, NumPy 2.4.4, Android-16-aarch64 |
+| Runtime | 2594.6 s |
+| Artifacts | `RSI1_P0_RECORD.md`, `rsi_p0_results.json`, `rsi_p0_precondition.py` |
+| Status | NOT ADMISSIBLE (VOID) |
+
+P0a, the anti-vacuity control, passed at every budget: paired SEMs of 0.0007
+to 0.0024 against a 0.01 resolution bar. These are resolved nulls, not
+underpowered measurements. Uniform holdout loss fell 0.23433 -> 0.21208 ->
+0.18027 across the ladder, so the substrate learns; curriculum contrast
+specifically is absent.
+
+Scope: this establishes that the RSI-1 substrate lacks the curriculum
+headroom the registered outer-loop test requires, at the three budgets tested
+and at fixed model capacity. It does not establish anything about recursive
+self-improvement in general, and it does not refute R1 or R2.
+
+Unresolved and carried forward: an unexplained direction reversal in the
+`error` contrast between 240 and 720 work units, logged as an observation
+with no mechanism; and one unrun prediction, P0d, raising model capacity to
+the quasar-v2 F16 regime before re-testing the precondition.
+
+Detail in `RSI1_P0_RECORD.md` on the `rsi-meta-curriculum` branch.
+
 Detailed per-experiment fields (exact parent/candidate revisions, evaluator hashes, full seed lists, artifact hashes) are not yet centralized in a machine-readable manifest in this repository. Where present, they appear in experiment scripts, test outputs, or the successor repository.
 
 ## Independent Reproduction
