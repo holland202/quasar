@@ -45,3 +45,32 @@ jobs:
           diff a.norm b.norm
       - name: Run uneven-competence experiment
         run: python experiments/quasar_experiment2.py
+
+  v2:
+    # Ported from holland202/quasar-v2's verify.yml when v2 was merged into v2/ (history preserved).
+    # Same gates, same order: self-tests, then prove the F16 gate can fail, then F16's recorded claims.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: v2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install numpy
+      - name: Self-tests (lucid2q T1-T6)
+        run: python3 lucid2q.py
+      - name: Self-tests (backprop V1-V4)
+        run: python3 backprop.py
+      - name: Self-tests (QGT suites)
+        run: python3 quantum_geometric_transformer.py
+      - name: Prove the F16 gate can fail
+        run: |
+          if python3 n2c_check.py --sabotage; then
+            echo "GATE IS INERT: sabotaged run exited 0"
+            exit 1
+          fi
+          echo "gate rejects a degenerate curriculum as expected"
+      - name: F16 curriculum claims still hold
+        run: python3 n2c_check.py

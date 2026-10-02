@@ -119,7 +119,7 @@ This is registered as a failure and kept.
 
 ### What the successor repo refuted
 
-[quasar-v2](https://github.com/holland202/quasar-v2) carries findings F1–F18,
+[`v2/`](v2/) (formerly the separate quasar-v2 repo, merged with its full history on 2026-10-02) carries findings F1–F18,
 two of which bear directly on this README's own framing:
 
 - **F18 refuted the founding premise.** Bures-metric attention does **not** beat
@@ -141,8 +141,9 @@ manufacture its own curriculum and improve on dynamics it was never shown? C1
 and C2 say yes at this scale. C3 says the adaptive part doesn't yet beat
 uniform sampling at this scale.
 
-v0.1 is the historical line and now runs. Active development is in
-[quasar-v2](https://github.com/holland202/quasar-v2).
+v0.1 is the historical line and now runs. The v2 line lives in [`v2/`](v2/) — merged here from the
+former quasar-v2 repository on 2026-10-02 with its full commit history (`git log --follow v2/FINDINGS.md`).
+Its CI gates run as the `v2` job.
 
 ## License
 
