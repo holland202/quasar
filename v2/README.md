@@ -1,3 +1,6 @@
+> **Merged.** This directory was the separate `holland202/quasar-v2` repository until 2026-10-02. It now
+> lives in `holland202/quasar` under `v2/`, with its full history. Run every command below from `v2/`.
+
 ![QUASAR v0.2](assets/quasar_v2_card.png)
 
 > ## Start here
