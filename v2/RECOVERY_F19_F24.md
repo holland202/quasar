@@ -127,9 +127,10 @@ August copies, hashing them shows whether the August device runs used these byte
 
 ## Credit and provenance
 
-- **Credit.** Graeme Randle gave the first external critique and drove the QUASAR geometry follow-ups; F19–F23
-  respond to his critiques, as the files say. He approved that credit line on 2026-10-03 (relayed by Chad Holland).
-  It approves the credit, not the work or the results. None of F19–F24 is an independent replication.
+- **Credit.** Graeme Randle gave the first external critique and drove the QUASAR geometry follow-ups. F20's
+  registration, F22 and F23 say they respond to his critiques; the owner's notes say F19's task came from his
+  diagnosis too. He approved that credit line on 2026-10-03 (relayed by Chad Holland). It approves the credit, not
+  the work or the results. None of F19–F24 is an independent replication.
 - **AI participation.** Claude (Anthropic) wrote F20–F24 and the demo in sessions Chad Holland directed in August
   2026, according to the owner's session notes; F20's registration names "holland202 + Claude (Anthropic)". The
   files do not record the model version. Claude (Opus 5.5) recovered the files, re-ran them, wrote the
