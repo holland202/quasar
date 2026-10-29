@@ -1,0 +1,22 @@
+==========================================================================
+F21 -- transition-token attention, registered before running
+==========================================================================
+
+--- direction regime (5 seeds, 60 trials/seed) ---
+  blind (uniform M avg)   : 0.064336 +- 0.003433
+  geo   (Bures-scored)    : 0.046980 +- 0.002056
+  dot   (dot-scored)      : 0.051280 +- 0.002577
+  attention entropy: geo 0.738, dot 0.942  (uniform max ~1.946)
+  P0a liveness (entropy < 90% of uniform max): True
+  P0b anti-vacuity (best-live beats blind by >=5%): True  (+27.0%)
+  P2 geo vs dot: GEO WINS  (geo 0.046980 vs dot 0.051280)
+
+--- purity regime (5 seeds, 60 trials/seed) ---
+  blind (uniform M avg)   : 0.038029 +- 0.008412
+  geo   (Bures-scored)    : 0.025716 +- 0.005072
+  dot   (dot-scored)      : 0.028993 +- 0.005788
+  attention entropy: geo 1.005, dot 1.282  (uniform max ~1.946)
+  P0a liveness (entropy < 90% of uniform max): True
+  P0b anti-vacuity (best-live beats blind by >=5%): True  (+32.4%)
+  P2 geo vs dot: GEO WINS  (geo 0.025716 vs dot 0.028993)
+exit 0

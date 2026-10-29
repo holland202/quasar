@@ -1,0 +1,16 @@
+==========================================================================
+F23 -- Bures confined to evaluation only, registered before running
+==========================================================================
+
+--- direction regime (5 seeds, ~? samples/seed) ---
+  attention entropy: 0.826  (uniform max ~1.386)  P0a liveness: True
+  [Bures^2 eval]     live 0.050373 +- 0.001908   blind 0.056234 +- 0.002852   margin +10.4%  P0b: True
+  [Euclidean^2 eval] live 0.148610 +- 0.006436   blind 0.166634 +- 0.009312   margin +10.8%  P0b: True
+  P1 metric-choice effect on margin: -0.4 percentage points (no meaningful difference)
+
+--- purity regime (5 seeds, ~? samples/seed) ---
+  attention entropy: 0.917  (uniform max ~1.386)  P0a liveness: True
+  [Bures^2 eval]     live 0.029256 +- 0.006055   blind 0.032902 +- 0.007831   margin +11.1%  P0b: True
+  [Euclidean^2 eval] live 0.082878 +- 0.013883   blind 0.093158 +- 0.018395   margin +11.0%  P0b: True
+  P1 metric-choice effect on margin: +0.0 percentage points (no meaningful difference)
+exit 0

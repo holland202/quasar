@@ -1,0 +1,94 @@
+====================================================================
+  QUASAR METHOD DEMO
+  a claim, the defects that voided it, the corrected number
+====================================================================
+
+Registered before running:
+  P0  attention must beat blind average by >=5% or no claim
+  P1  geo-vs-dot gap should collapse below 3% once temperature
+      is matched and leakage removed
+
+====================================================================
+  STAGE 1 — THE LEAK (found in code already sent out as a result)
+====================================================================
+
+Candidates are ridge-fit from disjoint chunks of past transitions.
+The original loop ran `while lo+CHUNK <= t`. Trace what that includes
+at each query point t, with CHUNK=2, and compare against the one
+transition used to SCORE candidate quality: (t-1)->(t).
+
+   t=4:  scored transition (3, 4)  ->  LEAKED (chunk lo=2)
+   t=5:  scored transition (4, 5)  ->  clean
+   t=6:  scored transition (5, 6)  ->  LEAKED (chunk lo=4)
+   t=7:  scored transition (6, 7)  ->  clean
+   t=8:  scored transition (7, 8)  ->  LEAKED (chunk lo=6)
+
+   3 of 5 query points scored on data the candidate
+   had already memorized. Fix: require lo+CHUNK <= t-1.
+
+====================================================================
+  STAGE 2 — THE TEMPERATURE CONFOUND (the larger defect)
+====================================================================
+
+Two score functions, one shared BETA=6.0:
+    bures^2   spans ~[0, 2.47]
+    euclid^2  spans ~[0, 4.00]
+Different ranges at the same BETA = different attention sharpness.
+Here is every previously-reported run, with entropy H and the winner:
+
+   run              H(geo)  H(dot)  sharper  winner match
+   F21 direction     0.738   0.942  geo      GEO    YES
+   F21 purity        1.005   1.282  geo      GEO    YES
+   F22 direction     0.971   0.826  dot      DOT    YES
+   F22 purity        0.981   0.917  dot      DOT    YES
+
+   4 of 4: the SHARPER arm won, whichever metric it was.
+   The metric verdict was never about the metric.
+
+====================================================================
+  STAGE 3 — THE FIX — leak-free chunks, matched temperature
+====================================================================
+
+   Calibrating BETA per arm so both sit at identical sharpness...
+
+   [direction]  BETA_geo=   197.807 (H=0.6000)   BETA_dot=   53.957 (H=0.6000)
+              calibrated betas differ 3.7x -> they were NEVER matched at 6.0
+              running seeds... done
+
+   [purity]  BETA_geo=  1027.688 (H=0.6000)   BETA_dot=  268.495 (H=0.6000)
+              calibrated betas differ 3.8x -> they were NEVER matched at 6.0
+              running seeds... done
+
+====================================================================
+  STAGE 4 — VERDICT
+====================================================================
+
+   [direction regime]
+     blind (uniform avg) : 0.008197 +- 0.000908
+     geo   (Bures score) : 0.005078 +- 0.000272
+     dot   (dot score)   : 0.005090 +- 0.000269
+     P0 attention beats blind by >=5% : True  (+38.0%)
+     P1 geo-vs-dot gap collapses <3%  : True  (0.23%)
+
+   [purity regime]
+     blind (uniform avg) : 0.006781 +- 0.001860
+     geo   (Bures score) : 0.003582 +- 0.000822
+     dot   (dot score)   : 0.003604 +- 0.000816
+     P0 attention beats blind by >=5% : True  (+47.2%)
+     P1 geo-vs-dot gap collapses <3%  : True  (0.62%)
+
+====================================================================
+  WHAT THIS SHOWS
+====================================================================
+  Attention over transition-estimates is REAL and large (see P0).
+  The choice of geometry does NOTHING once temperature is matched
+  (see P1) — both earlier verdicts, "Bures wins" and "dot wins",
+  were the same sharpness artifact seen from opposite sides.
+
+  Two results were published before those defects were found.
+  Both are void. That is the point of registering predictions and
+  keeping the failures: the record corrects itself in public.
+
+  runtime 2.2s, pure NumPy, no GPU
+====================================================================
+exit 0
