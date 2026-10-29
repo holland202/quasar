@@ -11,6 +11,9 @@
 > registered before the code runs. Failed predictions are kept and marked, not
 > deleted — [FINDINGS.md](FINDINGS.md) is the lab notebook: **18 entries
 > (F1–F18)**, including the refutation of this project's own founding premise.
+> F19–F24 were run in August but never committed; their recovered code and
+> container re-runs are in [RECOVERY_F19_F24.md](RECOVERY_F19_F24.md), and
+> they enter FINDINGS.md only after device reproduction.
 >
 > **The headline result is a refutation.** F18 tested the claim the QGT header
 > had made since v0.1 — that Bures-metric attention beats dot-product. Matched

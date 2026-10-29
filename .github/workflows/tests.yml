@@ -74,3 +74,19 @@ jobs:
           echo "gate rejects a degenerate curriculum as expected"
       - name: F16 curriculum claims still hold
         run: python3 n2c_check.py
+      # F19-F24 recovery (RECOVERY_F19_F24.md): the recovered scripts must print the committed container
+      # outputs, and the comparison must be shown able to fail. F20 exits 1 by design (VOID as registered);
+      # its "exit 1" line is part of the reference, so reproduce.py exits 0 only if F20 is still VOID.
+      - name: F19-F24 recovery - checkers can fail
+        run: |
+          pip install scipy
+          python3 recovery_2026-10-29/compare_outputs.py --selftest
+          python3 recovery_2026-10-29/august_numbers.py --selftest
+          if python3 recovery_2026-10-29/reproduce.py --sabotage f21_transition_tokens; then
+            echo "COMPARISON IS INERT: a changed digit was reported identical"
+            exit 1
+          fi
+      - name: F19-F24 recovery - recovered scripts reproduce the container outputs
+        run: |
+          python3 recovery_2026-10-29/reproduce.py --all --label ci
+          python3 recovery_2026-10-29/august_numbers.py recovery_2026-10-29 --label ci
