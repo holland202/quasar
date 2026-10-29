@@ -1,0 +1,51 @@
+# Checks run in the container on 2026-10-29, from v2/. Expected: exit 0, 0, 0, 0, 0, then 1 (sabotage must be caught). The fifth command runs under Python 3.11 / NumPy 2.4.6 (the CI version) from a scratch venv.
+
+$ python3 -B recovery_2026-10-29/compare_outputs.py --selftest
+[PASS] wall-clock lines differ only -> identical
+[PASS] one digit changed -> differ
+[PASS] exit line missing -> differ
+exit 0
+
+$ python3 -B recovery_2026-10-29/august_numbers.py --selftest
+[PASS] all tokens present -> pass
+[PASS] one digit changed -> exactly that token missing
+[PASS] no output -> nothing found
+exit 0
+
+$ python3 -B recovery_2026-10-29/august_numbers.py recovery_2026-10-29
+f20_purity_channel_container.txt         12/12
+f21_transition_tokens_container.txt      13/13
+f22_disjoint_quality_container.txt       13/13
+f23_metric_at_evaluation_container.txt   6/6
+f24_leakfree_temp_matched_container.txt  14/14
+demo_quasar_method_container.txt         14/14
+AUGUST NUMBERS FOUND: 72/72
+exit 0
+
+$ python3 -B recovery_2026-10-29/reproduce.py --all --label rerun
+environment: x86_64 | Python 3.13.18 | NumPy 2.5.3
+f20_purity_channel: bytes match recorded sha256 | exit 1 | IDENTICAL
+f21_transition_tokens: bytes match recorded sha256 | exit 0 | IDENTICAL
+f22_disjoint_quality: bytes match recorded sha256 | exit 0 | IDENTICAL
+f23_metric_at_evaluation: bytes match recorded sha256 | exit 0 | IDENTICAL
+f24_leakfree_temp_matched: bytes match recorded sha256 | exit 0 | IDENTICAL
+demo_quasar_method: bytes match recorded sha256 | exit 0 | IDENTICAL
+ALL IDENTICAL
+exit 0
+
+$ <venv: Python 3.11.18, NumPy 2.4.6, SciPy 1.17.1>/bin/python -B recovery_2026-10-29/reproduce.py --all --label py311
+environment: x86_64 | Python 3.11.18 | NumPy 2.4.6
+f20_purity_channel: bytes match recorded sha256 | exit 1 | IDENTICAL
+f21_transition_tokens: bytes match recorded sha256 | exit 0 | IDENTICAL
+f22_disjoint_quality: bytes match recorded sha256 | exit 0 | IDENTICAL
+f23_metric_at_evaluation: bytes match recorded sha256 | exit 0 | IDENTICAL
+f24_leakfree_temp_matched: bytes match recorded sha256 | exit 0 | IDENTICAL
+demo_quasar_method: bytes match recorded sha256 | exit 0 | IDENTICAL
+ALL IDENTICAL
+exit 0
+
+$ python3 -B recovery_2026-10-29/reproduce.py --sabotage f21_transition_tokens
+environment: x86_64 | Python 3.13.18 | NumPy 2.5.3
+f21_transition_tokens: bytes match recorded sha256 | exit 0 | DIFFERENT (1 line(s); first: line 5)
+NOT ALL IDENTICAL
+exit 1

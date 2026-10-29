@@ -1,0 +1,38 @@
+====================================================================
+F20 harness selftests
+====================================================================
+[PASS] H1 equal-norm monotone equivalence: min Kendall tau 1.000000 (derivation encoded as a test)
+[PASS] H2 analytic vs finite-diff, 3 modes x 2 regimes: worst 3.51e-11
+[PASS] H3 physical channels: identity control 0.00e+00, worst 1.00e-02
+[PASS] H4 determinism
+[PASS] H5 context replacement moves geo 1.43e-03 / dot 1.51e-03, blind 0.00e+00
+[PASS] H6 entropy instrument: uniform 2.079442 (max 2.079442), one-hot -1.00e-12 — the gate can move
+
+====================================================================
+F20: 5 seeds x 3 arms x 2 regimes, K=8, 2500 steps
+====================================================================
+
+----- regime: DIRECTION -----
+seed 0: GEO 0.046529 | DOT 0.046524 | BLIND 0.046562 | entropy geo 0.710 dot 0.652 of max | purity spread 0.0932 | gap -0.0001
+seed 1: GEO 0.048568 | DOT 0.048386 | BLIND 0.049103 | entropy geo 0.804 dot 0.699 of max | purity spread 0.2101 | gap -0.0038
+seed 2: GEO 0.061036 | DOT 0.061027 | BLIND 0.061058 | entropy geo 0.743 dot 0.636 of max | purity spread 0.1863 | gap -0.0001
+seed 3: GEO 0.061856 | DOT 0.061852 | BLIND 0.061835 | entropy geo 0.798 dot 0.725 of max | purity spread 0.0391 | gap -0.0001
+seed 4: GEO 0.053922 | DOT 0.053928 | BLIND 0.054240 | entropy geo 0.703 dot 0.582 of max | purity spread 0.0378 | gap +0.0001
+mean gap -0.0008 | wins 0/5 | mean entropy 0.705 of max | mean purity spread 0.1133
+
+----- regime: PURITY -----
+seed 0: GEO 0.000890 | DOT 0.000890 | BLIND 0.000908 | entropy geo 0.631 dot 0.647 of max | purity spread 0.2086 | gap +0.0002
+seed 1: GEO 0.000952 | DOT 0.000955 | BLIND 0.000933 | entropy geo 0.842 dot 0.865 of max | purity spread 0.2949 | gap +0.0030
+seed 2: GEO 0.001055 | DOT 0.001061 | BLIND 0.001030 | entropy geo 0.729 dot 0.661 of max | purity spread 0.2267 | gap +0.0052
+seed 3: GEO 0.000975 | DOT 0.000977 | BLIND 0.000959 | entropy geo 0.719 dot 0.639 of max | purity spread 0.1231 | gap +0.0018
+seed 4: GEO 0.001046 | DOT 0.001046 | BLIND 0.001041 | entropy geo 0.759 dot 0.763 of max | purity spread 0.1370 | gap +0.0000
+mean gap +0.0021 | wins 0/5 | mean entropy 0.725 of max | mean purity spread 0.1981
+
+====================================================================
+Registered verdicts (see F20_PREREG.md)
+====================================================================
+[FAIL] P0a context-blind beaten by >5% in both regimes
+[PASS] P0b LIVE ATTENTION: mean entropy < 90% of uniform max (direction 0.705, purity 0.725)
+
+RUN VOID — attention not demonstrably alive and/or not load-bearing. No metric claim is made in either direction.
+exit 1

@@ -1,0 +1,24 @@
+============================================================================
+F24 -- leak-free candidates + temperature-matched scoring (registered)
+============================================================================
+
+--- direction regime ---
+  calibration (target normalized entropy 0.60): BETA_geo=215.876 -> H=0.6000 | BETA_dot=59.049 -> H=0.6000
+  P0 calibration converged (both within 0.02 of target): True
+  blind : 0.008369 +- 0.000660
+  geo   : 0.004987 +- 0.000121
+  dot   : 0.004999 +- 0.000120
+  P1 anti-vacuity (best-live beats blind >=5%): True  (+40.4%)
+  P2 geo-vs-dot relative gap: 0.23%  (registered: collapses below 3%)
+     -> GAP COLLAPSED: earlier verdicts were sharpness artifacts
+
+--- purity regime ---
+  calibration (target normalized entropy 0.60): BETA_geo=1072.682 -> H=0.6000 | BETA_dot=280.256 -> H=0.6000
+  P0 calibration converged (both within 0.02 of target): True
+  blind : 0.005251 +- 0.002028
+  geo   : 0.002813 +- 0.000999
+  dot   : 0.002832 +- 0.001001
+  P1 anti-vacuity (best-live beats blind >=5%): True  (+46.4%)
+  P2 geo-vs-dot relative gap: 0.66%  (registered: collapses below 3%)
+     -> GAP COLLAPSED: earlier verdicts were sharpness artifacts
+exit 0

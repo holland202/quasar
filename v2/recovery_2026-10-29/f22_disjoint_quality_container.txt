@@ -1,0 +1,24 @@
+==========================================================================
+F22 -- disjoint candidates + map-quality scoring, registered before running
+==========================================================================
+
+--- direction regime (5 seeds, ~300 samples/seed) ---
+  blind (uniform avg)  : 0.056234 +- 0.002852
+  geo (map-quality)    : 0.053425 +- 0.002439
+  dot (map-quality)    : 0.050373 +- 0.001908
+  attention entropy: geo 0.971, dot 0.826  (uniform max ~1.386)
+  P0a liveness: True
+  P0b anti-vacuity (best-live beats blind by >=5%): True  (+10.4%)
+  P1 geo vs dot: DOT WINS  (geo 0.053425 vs dot 0.050373)
+  P2 margin vs F21 (27.0%): 10.4% (smaller)
+
+--- purity regime (5 seeds, ~300 samples/seed) ---
+  blind (uniform avg)  : 0.032902 +- 0.007831
+  geo (map-quality)    : 0.030943 +- 0.006759
+  dot (map-quality)    : 0.029256 +- 0.006055
+  attention entropy: geo 0.981, dot 0.917  (uniform max ~1.386)
+  P0a liveness: True
+  P0b anti-vacuity (best-live beats blind by >=5%): True  (+11.1%)
+  P1 geo vs dot: DOT WINS  (geo 0.030943 vs dot 0.029256)
+  P2 margin vs F21 (32.4%): 11.1% (smaller)
+exit 0

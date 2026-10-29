@@ -1,0 +1,8 @@
+# Scratch outputs from reproduce.py. The container references (*_container.txt) and
+# any device runs (*_device.txt) are the files that belong in the record.
+*_rerun.txt
+*_sabotage.txt
+*_ci.txt
+selftest_*.txt
+august_numbers_container.txt
+*_py311.txt
